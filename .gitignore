@@ -1,0 +1,23 @@
+# Docs (not ready to publish)
+*.md
+
+# Dependencies
+node_modules/
+
+# Environment / local config
+.env
+.env.local
+.env.*.local
+
+# Build output
+dist/
+build/
+.cdk.staging/
+cdk.out/
+
+# OS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/

@@ -1,0 +1,51 @@
+name: Deploy prod
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  id-token: write   # required for OIDC
+  contents: read
+
+jobs:
+  deploy:
+    name: CDK deploy (prod)
+    runs-on: ubuntu-latest
+    environment: prod
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: infrastructure/package-lock.json
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: eu-central-1
+
+      - name: Generate stages.ts
+        working-directory: infrastructure
+        run: cp config/stages.example.ts config/stages.ts
+
+      - name: Install infrastructure dependencies
+        working-directory: infrastructure
+        run: npm ci
+
+      - name: Build CDK
+        working-directory: infrastructure
+        run: npm run build
+
+      - name: CDK deploy
+        working-directory: infrastructure
+        env:
+          CONTACT_EMAIL: ${{ secrets.CONTACT_EMAIL }}
+          ADMIN_ALLOWED_IPS: ${{ secrets.ADMIN_ALLOWED_IPS }}
+        run: npx cdk deploy --require-approval never -c stage=prod

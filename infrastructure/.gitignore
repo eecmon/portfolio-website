@@ -1,0 +1,14 @@
+*.js
+!jest.config.js
+*.d.ts
+node_modules
+
+# CDK asset staging directory
+.cdk.staging
+cdk.out
+
+# Local stage config (contains sensitive data like IPs and emails)
+# Copy stages.example.ts to stages.ts and fill in your values
+config/stages.ts
+
+README.md
