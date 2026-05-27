@@ -10,6 +10,8 @@ export const stages = {
     stage: 'dev',
     region: 'eu-central-1',
     domainName: undefined,
+    // After first deploy, add your CloudFront URL here (e.g. 'https://xxxx.cloudfront.net')
+    // so that S3 presigned upload PUTs are not blocked by CORS.
     allowedOrigins: ['http://localhost:5173'],
     contactEmail: 'you@example.com',
     adminAllowedIps: [

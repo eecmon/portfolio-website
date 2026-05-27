@@ -1,4 +1,4 @@
-name: Deploy prod
+name: CI / Deploy prod
 
 on:
   push:
@@ -10,26 +10,59 @@ permissions:
   contents: read
 
 jobs:
-  deploy:
-    name: CDK deploy (prod)
+  # ── Job 1: run all tests ────────────────────────────────────────
+  test:
+    name: Tests
     runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Frontend tests
+        working-directory: frontend
+        run: npx vitest run
+
+      - name: Install backend dependencies
+        working-directory: backend
+        run: npm ci
+
+      - name: Backend tests
+        working-directory: backend
+        run: npm test
+
+  # ── Job 2: deploy infra + build and sync frontend ───────────────
+  deploy:
+    name: CDK deploy + frontend sync (prod)
+    runs-on: ubuntu-latest
+    needs: test           # only runs when tests pass
     environment: prod
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: infrastructure/package-lock.json
+          cache-dependency-path: |
+            infrastructure/package-lock.json
+            frontend/package-lock.json
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: eu-central-1
+
+      # ── Infrastructure ─────────────────────────────────────────
 
       - name: Generate stages.ts
         working-directory: infrastructure
@@ -48,4 +81,26 @@ jobs:
         env:
           CONTACT_EMAIL: ${{ secrets.CONTACT_EMAIL }}
           ADMIN_ALLOWED_IPS: ${{ secrets.ADMIN_ALLOWED_IPS }}
-        run: npx cdk deploy --require-approval never -c stage=prod
+        run: npx cdk deploy --require-approval never -c stage=prod --outputs-file cdk-outputs.json
+
+      # ── Frontend build + S3 sync ───────────────────────────────
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: frontend
+        run: npm run build
+
+      - name: Sync frontend to S3
+        working-directory: infrastructure
+        run: |
+          BUCKET=$(jq -r '."PortfolioStack-prod".WebsiteBucketName' cdk-outputs.json)
+          aws s3 sync ../frontend/dist s3://$BUCKET --delete
+
+      - name: Invalidate CloudFront cache
+        working-directory: infrastructure
+        run: |
+          DIST_ID=$(jq -r '."PortfolioStack-prod".DistributionId' cdk-outputs.json)
+          aws cloudfront create-invalidation --distribution-id $DIST_ID --paths "/*"

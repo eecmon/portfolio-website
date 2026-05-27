@@ -3,6 +3,7 @@ import { SiteSettingsProvider, useSiteSettings } from "@/context/SiteSettingsCon
 import { PortfolioContentProvider, usePortfolioContent } from "@/context/PortfolioContentContext";
 import { NavBar } from "@/components/customComponents/NavBar";
 import { HeroComponent } from "@/components/customComponents/HeroComponent";
+import { SectionRenderer } from "@/components/customComponents/Sections/SectionRenderer";
 import { PortfolioBuilder } from "@/components/customComponents/Builder";
 import { isLocalMode } from "@/api/apiMode";
 
@@ -10,6 +11,12 @@ function PortfolioApp() {
   const { content, updateContent } = usePortfolioContent();
   const { settings, updateSettings } = useSiteSettings();
   const [isEditing, setIsEditing] = useState(false);
+
+  // displayLang is the currently selected portfolio view language.
+  // It starts at the configured default but can be toggled via the NavBar language switcher.
+  const [displayLang, setDisplayLang] = useState<string>(
+    () => settings?.defaultLanguage ?? "en"
+  );
 
   // In local mode the CloudFront meta tag is absent — treat dev as editor.
   const editorAllowed =
@@ -39,11 +46,19 @@ function PortfolioApp() {
         editorAllowed={editorAllowed}
         isEditing={isEditing}
         onToggleEdit={() => setIsEditing(true)}
+        multilanguage={settings.multilanguage}
+        displayLanguage={displayLang}
+        onLanguageChange={setDisplayLang}
       />
       <main>
         <HeroComponent
           content={content.hero}
-          defaultLanguage={settings.defaultLanguage}
+          defaultLanguage={displayLang}
+          multilanguage={settings.multilanguage}
+        />
+        <SectionRenderer
+          sections={content.sections ?? []}
+          defaultLanguage={displayLang}
           multilanguage={settings.multilanguage}
         />
       </main>

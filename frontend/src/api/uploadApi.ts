@@ -8,7 +8,7 @@ export async function uploadFile(file: File): Promise<string> {
   const res = await fetch("/api/upload", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ filename: file.name, contentType: file.type }),
+    body: JSON.stringify({ fileName: file.name, contentType: file.type }), // FIX: fileName (capital N)
   });
   if (!res.ok) throw new Error(`POST /api/upload failed: ${res.status}`);
 

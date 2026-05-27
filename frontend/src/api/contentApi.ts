@@ -17,8 +17,70 @@ export interface HeroContent {
   links: HeroLink[];
 }
 
+// ── Portfolio Sections ────────────────────────────────────────────
+
+export type SectionType = "timeline" | "text" | "image" | "skills" | "insights";
+
+export interface TimelineItem {
+  id: string;
+  order: number;
+  date: string;
+  title: string;
+  description?: string;
+}
+
+// Image section
+export interface SectionImage {
+  id: string;
+  imageUrl: string;
+  caption?: string;
+  order: number;
+}
+
+// Skills section
+export interface SkillBadgeItem {
+  id: string;
+  label: string;
+}
+
+export interface SkillGroup {
+  id: string;
+  order: number;
+  heading: string;
+  items: SkillBadgeItem[];
+}
+
+// Insights section
+export interface InsightDetailBlock {
+  id: string;
+  order: number;
+  header?: string;
+  description?: string;
+  imageUrl?: string;
+}
+
+export interface InsightItem {
+  id: string;
+  order: number;
+  name: string;
+  shortDescription: string;
+  detailBlocks: InsightDetailBlock[];
+}
+
+export interface PortfolioSection {
+  id: string;
+  type: SectionType;
+  order: number;
+  title: string;
+  subtext?: string;
+  description?: string;
+  iconUrl?: string;
+  data: Record<string, unknown>;
+}
+
 export interface Content {
   hero: HeroContent;
+  sections: PortfolioSection[];
 }
 
 const STORAGE_KEY = "portfolio.content";
@@ -34,17 +96,21 @@ const defaultContent: Content = {
     profile_image: "",
     links: [],
   },
+  sections: [],
 };
 
 export async function getContent(): Promise<Content> {
   if (isLocalMode()) {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Content) : { ...defaultContent, hero: { ...defaultContent.hero } };
+    if (!raw) return { ...defaultContent, hero: { ...defaultContent.hero }, sections: [] };
+    const parsed = JSON.parse(raw) as Partial<Content>;
+    return { ...defaultContent, ...parsed, sections: parsed.sections ?? [] };
   }
 
   const res = await fetch("/api/content");
   if (!res.ok) throw new Error(`GET /api/content failed: ${res.status}`);
-  return res.json() as Promise<Content>;
+  const data = (await res.json()) as Partial<Content>;
+  return { ...defaultContent, ...data, sections: data.sections ?? [] };
 }
 
 export async function putContent(content: Content): Promise<void> {
