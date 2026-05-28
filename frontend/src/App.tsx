@@ -18,11 +18,9 @@ function PortfolioApp() {
     () => settings?.defaultLanguage ?? "en"
   );
 
-  // In local mode the CloudFront meta tag is absent — treat dev as editor.
-  const editorAllowed =
-    isLocalMode() ||
-    (document.querySelector<HTMLMetaElement>('meta[name="x-editor-allowed"]')
-      ?.content ?? "false") === "true";
+  // In local mode treat as editor. In API mode the Lambda injects editor.allowed
+  // into the GET /content response based on the viewer's IP (CloudFront function).
+  const editorAllowed = isLocalMode() || content?.editor?.allowed === true;
 
   if (!content || !settings) return null;
 

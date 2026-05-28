@@ -81,6 +81,8 @@ export interface PortfolioSection {
 export interface Content {
   hero: HeroContent;
   sections: PortfolioSection[];
+  /** Populated by the API at read-time; never persisted. */
+  editor?: { allowed: boolean; viewerIp?: string | null };
 }
 
 const STORAGE_KEY = "portfolio.content";
@@ -114,15 +116,18 @@ export async function getContent(): Promise<Content> {
 }
 
 export async function putContent(content: Content): Promise<void> {
+  // Strip runtime-only fields before saving
+  const { editor: _editor, ...payload } = content;
+
   if (isLocalMode()) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(content));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     return;
   }
 
   const res = await fetch("/api/content", {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(content),
+    body: JSON.stringify(payload),
   });
   if (!res.ok) throw new Error(`PUT /api/content failed: ${res.status}`);
 }
