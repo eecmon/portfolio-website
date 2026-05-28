@@ -1,5 +1,5 @@
 import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn, slugify } from "@/lib/utils";
 import type { HeroContent } from "@/api/contentApi";
 
 interface HeroComponentProps {
@@ -98,8 +98,11 @@ export function HeroComponent({
     profile_image,
     profile_image_position,
     profile_image_zoom,
+    navLabel,
     links,
   } = content;
+
+  const anchorId = navLabel ? slugify(navLabel) : undefined;
 
   const occupation = pickLang(lang, occupation_de, occupation_en);
   const summary = pickLang(lang, summary_de, summary_en);
@@ -111,7 +114,7 @@ export function HeroComponent({
 
   if (!hasContent) {
     return (
-      <section className="mx-auto max-w-5xl px-6 pt-12 pb-14 sm:pt-16">
+      <section id={anchorId} className="mx-auto max-w-5xl px-6 pt-24 pb-14 sm:pt-28 scroll-mt-20">
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border py-20 text-center">
           <p className="text-sm font-medium" style={{ color: "var(--color-primary)" }}>
             Your portfolio is empty
@@ -125,7 +128,7 @@ export function HeroComponent({
   }
 
   return (
-    <section className="mx-auto max-w-5xl px-6 pt-12 pb-14 sm:pt-16">
+    <section id={anchorId} className="mx-auto max-w-5xl px-6 pt-24 pb-14 sm:pt-28 scroll-mt-20">
       <div className="flex flex-col items-start gap-10 sm:flex-row sm:items-start sm:gap-14">
         {/* Avatar */}
         {profile_image ? (

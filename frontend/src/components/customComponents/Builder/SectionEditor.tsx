@@ -341,6 +341,17 @@ export function SectionEditor({
             />
           </>
         )}
+
+        {/* Navigation anchor */}
+        <Separator />
+        <div className="flex flex-col gap-1.5">
+          <Label>{t(lang, "nav.label")}</Label>
+          <Input
+            value={section.navLabel ?? ""}
+            onChange={(e) => onUpdate({ navLabel: e.target.value })}
+            placeholder={t(lang, "nav.labelPlaceholder")}
+          />
+        </div>
       </CardContent>
     </Card>
     </div>

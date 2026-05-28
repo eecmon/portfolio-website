@@ -2,10 +2,13 @@ import { useState } from "react";
 import { SiteSettingsProvider, useSiteSettings } from "@/context/SiteSettingsContext";
 import { PortfolioContentProvider, usePortfolioContent } from "@/context/PortfolioContentContext";
 import { NavBar } from "@/components/customComponents/NavBar";
+import type { NavItem } from "@/components/customComponents/NavBar/NavBar";
 import { HeroComponent } from "@/components/customComponents/HeroComponent";
 import { SectionRenderer } from "@/components/customComponents/Sections/SectionRenderer";
+import { Footer } from "@/components/customComponents/Footer";
 import { PortfolioBuilder } from "@/components/customComponents/Builder";
 import { isLocalMode } from "@/api/apiMode";
+import { slugify } from "@/lib/utils";
 
 function PortfolioApp() {
   const { content, updateContent } = usePortfolioContent();
@@ -24,6 +27,13 @@ function PortfolioApp() {
 
   if (!content || !settings) return null;
 
+  const navItems: NavItem[] = [
+    ...(content.hero.navLabel ? [{ label: content.hero.navLabel, anchor: slugify(content.hero.navLabel) }] : []),
+    ...[...( content.sections ?? [])].sort((a, b) => a.order - b.order)
+      .filter((s) => s.navLabel)
+      .map((s) => ({ label: s.navLabel!, anchor: slugify(s.navLabel!) })),
+  ];
+
   if (isEditing && editorAllowed) {
     return (
       <PortfolioBuilder
@@ -37,7 +47,7 @@ function PortfolioApp() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       <NavBar
         firstName={content.hero.firstName}
         lastName={content.hero.lastName}
@@ -47,8 +57,9 @@ function PortfolioApp() {
         multilanguage={settings.multilanguage}
         displayLanguage={displayLang}
         onLanguageChange={setDisplayLang}
+        navItems={navItems}
       />
-      <main>
+      <main className="flex-1">
         <HeroComponent
           content={content.hero}
           defaultLanguage={displayLang}
@@ -60,6 +71,7 @@ function PortfolioApp() {
           multilanguage={settings.multilanguage}
         />
       </main>
+      <Footer hero={content.hero} defaultLanguage={displayLang} />
     </div>
   );
 }

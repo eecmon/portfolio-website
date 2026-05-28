@@ -12,11 +12,14 @@ import { SectionEditor } from "./SectionEditor";
 import { NavBar } from "@/components/customComponents/NavBar";
 import { HeroComponent } from "@/components/customComponents/HeroComponent";
 import { SectionRenderer } from "@/components/customComponents/Sections/SectionRenderer";
+import { Footer } from "@/components/customComponents/Footer";
 
 import { uploadFile } from "@/api/uploadApi";
 import { applySettings } from "@/lib/applySettings";
+import { slugify } from "@/lib/utils";
 import type { Settings } from "@/api/settingsApi";
 import type { Content, HeroContent, HeroLink, PortfolioSection, SectionType } from "@/api/contentApi";
+import type { NavItem } from "@/components/customComponents/NavBar/NavBar";
 import { t } from "@/i18n";
 
 // ── Profile image editor (placeholder + drag-reposition + hover-delete) ──
@@ -418,6 +421,13 @@ export function PortfolioBuilder({
   const showDe = settings.multilanguage || lang === "de";
   const typeLabels = sectionTypeLabels(lang);
 
+  const previewNavItems: NavItem[] = [
+    ...(content.hero.navLabel ? [{ label: content.hero.navLabel, anchor: slugify(content.hero.navLabel) }] : []),
+    ...sortedSections
+      .filter((s) => s.navLabel)
+      .map((s) => ({ label: s.navLabel!, anchor: slugify(s.navLabel!) })),
+  ];
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* ── Left panel: editor forms ──────────────────────────── */}
@@ -587,6 +597,19 @@ export function PortfolioBuilder({
                   />
                 ))}
               </div>
+
+              <Separator />
+
+              {/* Navigation anchor */}
+              <div className="flex flex-col gap-1.5">
+                <Label htmlFor="hero-nav-label">{t(lang, "nav.label")}</Label>
+                <Input
+                  id="hero-nav-label"
+                  value={content.hero.navLabel ?? ""}
+                  onChange={(e) => patchHero({ navLabel: e.target.value })}
+                  placeholder={t(lang, "nav.labelPlaceholder")}
+                />
+              </div>
             </CardContent>
           </Card>
           </div>
@@ -696,34 +719,36 @@ export function PortfolioBuilder({
 
       {/* ── Right panel: live preview ──────────────────────────── */}
       <div className="hidden flex-1 flex-col overflow-y-auto sm:flex">
+        {/* Preview chrome bar */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/80 px-4 py-2 backdrop-blur-sm">
           <span className="text-xs text-muted-foreground">{t(lang, "builder.livePreview")}</span>
 
-          {/* Language switcher — only when multilanguage is on */}
+          {/* Language switcher — EN | DE style */}
           {settings.multilanguage && (
-            <div className="flex items-center gap-0.5 rounded-md border border-border bg-muted/40 p-0.5">
-              {(["en", "de"] as const).map((l) => {
-                const isActive = previewLang === l;
-                return (
+            <div className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide">
+              {(["en", "de"] as const).map((l, i) => (
+                <span key={l} className="flex items-center gap-1">
+                  {i > 0 && <span className="text-border select-none">|</span>}
                   <button
-                    key={l}
                     type="button"
                     onClick={() => setPreviewLang(l)}
                     className={[
-                      "rounded px-2.5 py-1 text-xs font-semibold uppercase tracking-wide transition-colors",
-                      isActive
-                        ? "bg-background text-foreground shadow-sm"
+                      "transition-colors",
+                      previewLang === l
+                        ? "text-foreground"
                         : "text-muted-foreground hover:text-foreground",
                     ].join(" ")}
                   >
                     {l.toUpperCase()}
                   </button>
-                );
-              })}
+                </span>
+              ))}
             </div>
           )}
         </div>
-        <div className="flex-1 bg-background">
+
+        {/* Preview content */}
+        <div className="flex min-h-full flex-col bg-background">
           <NavBar
             firstName={content.hero.firstName}
             lastName={content.hero.lastName}
@@ -732,17 +757,23 @@ export function PortfolioBuilder({
             onToggleEdit={() => {}}
             multilanguage={settings.multilanguage}
             displayLanguage={previewLang}
+            onLanguageChange={setPreviewLang}
+            navItems={previewNavItems}
+            floating={false}
           />
-          <HeroComponent
-            content={content.hero}
-            defaultLanguage={previewLang}
-            multilanguage={settings.multilanguage}
-          />
-          <SectionRenderer
-            sections={content.sections}
-            defaultLanguage={previewLang}
-            multilanguage={settings.multilanguage}
-          />
+          <main className="flex-1">
+            <HeroComponent
+              content={content.hero}
+              defaultLanguage={previewLang}
+              multilanguage={settings.multilanguage}
+            />
+            <SectionRenderer
+              sections={content.sections}
+              defaultLanguage={previewLang}
+              multilanguage={settings.multilanguage}
+            />
+          </main>
+          <Footer hero={content.hero} defaultLanguage={previewLang} />
         </div>
       </div>
     </div>

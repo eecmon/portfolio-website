@@ -103,4 +103,37 @@ describe("HeroComponent", () => {
     );
     expect(screen.getByText(/your portfolio is empty/i)).toBeInTheDocument();
   });
+
+  // ── scroll anchor ─────────────────────────────────────────────────
+
+  it("sets id on the section element when navLabel is provided", () => {
+    const { container } = render(
+      <HeroComponent
+        content={{ ...baseContent, navLabel: "About Me" }}
+        defaultLanguage="en"
+        multilanguage={false}
+      />
+    );
+    const section = container.querySelector("section");
+    expect(section).toHaveAttribute("id", "about-me");
+  });
+
+  it("does not set id on the section element when navLabel is absent", () => {
+    const { container } = render(
+      <HeroComponent content={baseContent} defaultLanguage="en" multilanguage={false} />
+    );
+    const section = container.querySelector("section");
+    expect(section).not.toHaveAttribute("id");
+  });
+
+  it("slugifies the navLabel for the id (special chars stripped)", () => {
+    const { container } = render(
+      <HeroComponent
+        content={{ ...baseContent, navLabel: "Hello, World!" }}
+        defaultLanguage="en"
+        multilanguage={false}
+      />
+    );
+    expect(container.querySelector("section")).toHaveAttribute("id", "hello-world");
+  });
 });

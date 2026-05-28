@@ -5,6 +5,8 @@ export const translations: Record<UILang, Record<string, string>> = {
     // Nav
     "nav.edit": "Edit",
     "nav.done": "Done",
+    "nav.label": "Navigation label",
+    "nav.labelPlaceholder": "e.g. About, Skills…",
 
     // Builder chrome
     "builder.title": "Portfolio Builder",
@@ -94,6 +96,9 @@ export const translations: Record<UILang, Record<string, string>> = {
     "insightsSection.blockDescriptionEn": "Block description (EN)",
     "insightsSection.blockDescriptionDe": "Block description (DE)",
 
+    // Footer
+    "footer.resumeOf": "This is the resume website of",
+
     // Timeline section editor
     "timelineSection.addEntry": "Add Entry",
     "timelineSection.date": "Date",
@@ -109,6 +114,8 @@ export const translations: Record<UILang, Record<string, string>> = {
     // Nav
     "nav.edit": "Bearbeiten",
     "nav.done": "Fertig",
+    "nav.label": "Navigationsbezeichnung",
+    "nav.labelPlaceholder": "z.B. Über mich, Fähigkeiten…",
 
     // Builder chrome
     "builder.title": "Portfolio-Builder",
@@ -197,6 +204,9 @@ export const translations: Record<UILang, Record<string, string>> = {
     "insightsSection.blockDescription": "Block-Beschreibung",
     "insightsSection.blockDescriptionEn": "Block-Beschreibung (EN)",
     "insightsSection.blockDescriptionDe": "Block-Beschreibung (DE)",
+
+    // Footer
+    "footer.resumeOf": "Dies ist die Lebenslauf-Website von",
 
     // Timeline section editor
     "timelineSection.addEntry": "Eintrag hinzufügen",
