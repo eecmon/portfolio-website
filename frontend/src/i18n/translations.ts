@@ -50,8 +50,14 @@ export const translations: Record<UILang, Record<string, string>> = {
 
     // Generic section fields
     "section.title": "Title",
+    "section.titleEn": "Title (EN)",
+    "section.titleDe": "Title (DE)",
     "section.subtext": "Subtext",
+    "section.subtextEn": "Subtext (EN)",
+    "section.subtextDe": "Subtext (DE)",
     "section.description": "Description",
+    "section.descriptionEn": "Description (EN)",
+    "section.descriptionDe": "Description (DE)",
     "section.icon": "Icon",
     "section.moveUp": "Move up",
     "section.moveDown": "Move down",
@@ -59,6 +65,8 @@ export const translations: Record<UILang, Record<string, string>> = {
 
     // Image section editor
     "imageSection.caption": "Caption",
+    "imageSection.captionEn": "Caption (EN)",
+    "imageSection.captionDe": "Caption (DE)",
     "imageSection.addImage": "Add Image",
     "imageSection.noImages": "No images yet.",
 
@@ -73,16 +81,28 @@ export const translations: Record<UILang, Record<string, string>> = {
     "insightsSection.addItem": "Add Insight",
     "insightsSection.noItems": "No insights yet.",
     "insightsSection.name": "Name",
+    "insightsSection.nameEn": "Name (EN)",
+    "insightsSection.nameDe": "Name (DE)",
     "insightsSection.shortDescription": "Short description",
+    "insightsSection.shortDescriptionEn": "Short description (EN)",
+    "insightsSection.shortDescriptionDe": "Short description (DE)",
     "insightsSection.addBlock": "Add Block",
     "insightsSection.blockHeader": "Block header",
+    "insightsSection.blockHeaderEn": "Block header (EN)",
+    "insightsSection.blockHeaderDe": "Block header (DE)",
     "insightsSection.blockDescription": "Block description",
+    "insightsSection.blockDescriptionEn": "Block description (EN)",
+    "insightsSection.blockDescriptionDe": "Block description (DE)",
 
     // Timeline section editor
     "timelineSection.addEntry": "Add Entry",
     "timelineSection.date": "Date",
     "timelineSection.entryTitle": "Title",
+    "timelineSection.entryTitleEn": "Title (EN)",
+    "timelineSection.entryTitleDe": "Title (DE)",
     "timelineSection.description": "Description (optional)",
+    "timelineSection.descriptionEn": "Description (EN)",
+    "timelineSection.descriptionDe": "Description (DE)",
   },
 
   de: {
@@ -134,8 +154,14 @@ export const translations: Record<UILang, Record<string, string>> = {
 
     // Generic section fields
     "section.title": "Titel",
+    "section.titleEn": "Titel (EN)",
+    "section.titleDe": "Titel (DE)",
     "section.subtext": "Untertext",
+    "section.subtextEn": "Untertext (EN)",
+    "section.subtextDe": "Untertext (DE)",
     "section.description": "Beschreibung",
+    "section.descriptionEn": "Beschreibung (EN)",
+    "section.descriptionDe": "Beschreibung (DE)",
     "section.icon": "Symbol",
     "section.moveUp": "Nach oben",
     "section.moveDown": "Nach unten",
@@ -143,6 +169,8 @@ export const translations: Record<UILang, Record<string, string>> = {
 
     // Image section editor
     "imageSection.caption": "Bildunterschrift",
+    "imageSection.captionEn": "Bildunterschrift (EN)",
+    "imageSection.captionDe": "Bildunterschrift (DE)",
     "imageSection.addImage": "Bild hinzufügen",
     "imageSection.noImages": "Noch keine Bilder.",
 
@@ -157,15 +185,27 @@ export const translations: Record<UILang, Record<string, string>> = {
     "insightsSection.addItem": "Einblick hinzufügen",
     "insightsSection.noItems": "Noch keine Einblicke.",
     "insightsSection.name": "Name",
+    "insightsSection.nameEn": "Name (EN)",
+    "insightsSection.nameDe": "Name (DE)",
     "insightsSection.shortDescription": "Kurzbeschreibung",
+    "insightsSection.shortDescriptionEn": "Kurzbeschreibung (EN)",
+    "insightsSection.shortDescriptionDe": "Kurzbeschreibung (DE)",
     "insightsSection.addBlock": "Block hinzufügen",
     "insightsSection.blockHeader": "Block-Überschrift",
+    "insightsSection.blockHeaderEn": "Block-Überschrift (EN)",
+    "insightsSection.blockHeaderDe": "Block-Überschrift (DE)",
     "insightsSection.blockDescription": "Block-Beschreibung",
+    "insightsSection.blockDescriptionEn": "Block-Beschreibung (EN)",
+    "insightsSection.blockDescriptionDe": "Block-Beschreibung (DE)",
 
     // Timeline section editor
     "timelineSection.addEntry": "Eintrag hinzufügen",
     "timelineSection.date": "Datum",
     "timelineSection.entryTitle": "Titel",
+    "timelineSection.entryTitleEn": "Titel (EN)",
+    "timelineSection.entryTitleDe": "Titel (DE)",
     "timelineSection.description": "Beschreibung (optional)",
+    "timelineSection.descriptionEn": "Beschreibung (EN)",
+    "timelineSection.descriptionDe": "Beschreibung (DE)",
   },
 };

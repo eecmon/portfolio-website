@@ -15,6 +15,7 @@ const defaultSettings = {
   primaryColor: '#2563eb',
   secondaryColor: '#64748b',
   textColor: '#111827',
+  fontFamily: 'geist',
   multilanguage: false,
   defaultLanguage: 'en',
 };

@@ -6,6 +6,7 @@ const settings: Settings = {
   primaryColor: "#2563eb",
   secondaryColor: "#64748b",
   textColor: "#111827",
+  fontFamily: "geist",
   multilanguage: false,
   defaultLanguage: "en",
 };
@@ -50,5 +51,15 @@ describe("applySettings", () => {
       document.documentElement.style.getPropertyValue("--color-primary")
     ).toBe("#ff0000");
     expect(document.documentElement.dataset.theme).toBe("modern-1");
+  });
+
+  it("sets fontFamily on documentElement for known font id", () => {
+    applySettings({ ...settings, fontFamily: "inter" });
+    expect(document.documentElement.style.fontFamily).toContain("Inter");
+  });
+
+  it("falls back to Geist for unknown font id", () => {
+    applySettings({ ...settings, fontFamily: "unknown-font" });
+    expect(document.documentElement.style.fontFamily).toContain("Geist");
   });
 });

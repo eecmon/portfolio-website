@@ -23,13 +23,14 @@ interface DetailBlockEditorProps {
   isFirst: boolean;
   isLast: boolean;
   lang: string;
+  multilanguage: boolean;
   onUpdate: (patch: Partial<InsightDetailBlock>) => void;
   onRemove: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
 }
 
-function DetailBlockEditor({ block, isFirst, isLast, lang, onUpdate, onRemove, onMoveUp, onMoveDown }: DetailBlockEditorProps) {
+function DetailBlockEditor({ block, isFirst, isLast, lang, multilanguage, onUpdate, onRemove, onMoveUp, onMoveDown }: DetailBlockEditorProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -58,10 +59,25 @@ function DetailBlockEditor({ block, isFirst, isLast, lang, onUpdate, onRemove, o
         </button>
       </div>
 
-      <Input placeholder={t(lang, "insightsSection.blockHeader")} value={block.header ?? ""}
-        onChange={(e) => onUpdate({ header: e.target.value })} />
-      <Textarea placeholder={t(lang, "insightsSection.blockDescription")} value={block.description ?? ""}
-        onChange={(e) => onUpdate({ description: e.target.value })} className="min-h-[60px]" />
+      {multilanguage ? (
+        <>
+          <Input placeholder={t(lang, "insightsSection.blockHeaderEn")} value={block.header_en ?? ""}
+            onChange={(e) => onUpdate({ header_en: e.target.value })} />
+          <Input placeholder={t(lang, "insightsSection.blockHeaderDe")} value={block.header_de ?? ""}
+            onChange={(e) => onUpdate({ header_de: e.target.value })} />
+          <Textarea placeholder={t(lang, "insightsSection.blockDescriptionEn")} value={block.description_en ?? ""}
+            onChange={(e) => onUpdate({ description_en: e.target.value })} className="min-h-[60px]" />
+          <Textarea placeholder={t(lang, "insightsSection.blockDescriptionDe")} value={block.description_de ?? ""}
+            onChange={(e) => onUpdate({ description_de: e.target.value })} className="min-h-[60px]" />
+        </>
+      ) : (
+        <>
+          <Input placeholder={t(lang, "insightsSection.blockHeader")} value={block.header ?? ""}
+            onChange={(e) => onUpdate({ header: e.target.value })} />
+          <Textarea placeholder={t(lang, "insightsSection.blockDescription")} value={block.description ?? ""}
+            onChange={(e) => onUpdate({ description: e.target.value })} className="min-h-[60px]" />
+        </>
+      )}
 
       <div className="flex items-center gap-2">
         {block.imageUrl && (
@@ -100,13 +116,14 @@ interface ItemEditorProps {
   isFirst: boolean;
   isLast: boolean;
   lang: string;
+  multilanguage: boolean;
   onUpdate: (patch: Partial<InsightItem>) => void;
   onRemove: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
 }
 
-function ItemEditor({ item, isFirst, isLast, lang, onUpdate, onRemove, onMoveUp, onMoveDown }: ItemEditorProps) {
+function ItemEditor({ item, isFirst, isLast, lang, multilanguage, onUpdate, onRemove, onMoveUp, onMoveDown }: ItemEditorProps) {
   const sortedBlocks = [...item.detailBlocks].sort((a, b) => a.order - b.order);
 
   function addBlock() {
@@ -158,10 +175,25 @@ function ItemEditor({ item, isFirst, isLast, lang, onUpdate, onRemove, onMoveUp,
         </button>
       </div>
 
-      <Input placeholder={t(lang, "insightsSection.name")} value={item.name}
-        onChange={(e) => onUpdate({ name: e.target.value })} />
-      <Textarea placeholder={t(lang, "insightsSection.shortDescription")} value={item.shortDescription}
-        onChange={(e) => onUpdate({ shortDescription: e.target.value })} className="min-h-[60px]" />
+      {multilanguage ? (
+        <>
+          <Input placeholder={t(lang, "insightsSection.nameEn")} value={item.name_en ?? ""}
+            onChange={(e) => onUpdate({ name_en: e.target.value })} />
+          <Input placeholder={t(lang, "insightsSection.nameDe")} value={item.name_de ?? ""}
+            onChange={(e) => onUpdate({ name_de: e.target.value })} />
+          <Textarea placeholder={t(lang, "insightsSection.shortDescriptionEn")} value={item.shortDescription_en ?? ""}
+            onChange={(e) => onUpdate({ shortDescription_en: e.target.value })} className="min-h-[60px]" />
+          <Textarea placeholder={t(lang, "insightsSection.shortDescriptionDe")} value={item.shortDescription_de ?? ""}
+            onChange={(e) => onUpdate({ shortDescription_de: e.target.value })} className="min-h-[60px]" />
+        </>
+      ) : (
+        <>
+          <Input placeholder={t(lang, "insightsSection.name")} value={item.name}
+            onChange={(e) => onUpdate({ name: e.target.value })} />
+          <Textarea placeholder={t(lang, "insightsSection.shortDescription")} value={item.shortDescription}
+            onChange={(e) => onUpdate({ shortDescription: e.target.value })} className="min-h-[60px]" />
+        </>
+      )}
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
@@ -173,7 +205,7 @@ function ItemEditor({ item, isFirst, isLast, lang, onUpdate, onRemove, onMoveUp,
           </Button>
         </div>
         {sortedBlocks.map((block, idx) => (
-          <DetailBlockEditor key={block.id} block={block} lang={lang}
+          <DetailBlockEditor key={block.id} block={block} lang={lang} multilanguage={multilanguage}
             isFirst={idx === 0} isLast={idx === sortedBlocks.length - 1}
             onUpdate={(patch) => updateBlock(block.id, patch)}
             onRemove={() => removeBlock(block.id)}
@@ -190,10 +222,13 @@ function ItemEditor({ item, isFirst, isLast, lang, onUpdate, onRemove, onMoveUp,
 interface InsightsSectionEditorProps {
   section: PortfolioSection;
   lang?: string;
+  showEn?: boolean;
+  showDe?: boolean;
   onUpdate: (patch: Partial<PortfolioSection>) => void;
 }
 
-export function InsightsSectionEditor({ section, lang = "en", onUpdate }: InsightsSectionEditorProps) {
+export function InsightsSectionEditor({ section, lang = "en", showEn = true, showDe = false, onUpdate }: InsightsSectionEditorProps) {
+  const multilanguage = showEn && showDe;
   const iconInputRef = useRef<HTMLInputElement>(null);
   const [uploadingIcon, setUploadingIcon] = useState(false);
 
@@ -245,17 +280,49 @@ export function InsightsSectionEditor({ section, lang = "en", onUpdate }: Insigh
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor={`ins-title-${section.id}`}>{t(lang, "section.title")}</Label>
-        <Input id={`ins-title-${section.id}`} value={section.title}
-          onChange={(e) => onUpdate({ title: e.target.value })} placeholder="Section title" />
-      </div>
+      {/* Title */}
+      {multilanguage ? (
+        <>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={`ins-title-en-${section.id}`}>{t(lang, "section.titleEn")}</Label>
+            <Input id={`ins-title-en-${section.id}`} value={section.title_en ?? ""}
+              onChange={(e) => onUpdate({ title_en: e.target.value })} placeholder="Section title (EN)" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={`ins-title-de-${section.id}`}>{t(lang, "section.titleDe")}</Label>
+            <Input id={`ins-title-de-${section.id}`} value={section.title_de ?? ""}
+              onChange={(e) => onUpdate({ title_de: e.target.value })} placeholder="Abschnittstitel (DE)" />
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={`ins-title-${section.id}`}>{t(lang, "section.title")}</Label>
+          <Input id={`ins-title-${section.id}`} value={section.title}
+            onChange={(e) => onUpdate({ title: e.target.value })} placeholder="Section title" />
+        </div>
+      )}
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor={`ins-subtext-${section.id}`}>{t(lang, "section.subtext")}</Label>
-        <Input id={`ins-subtext-${section.id}`} value={section.subtext ?? ""}
-          onChange={(e) => onUpdate({ subtext: e.target.value })} placeholder="Short subtitle (optional)" />
-      </div>
+      {/* Subtext */}
+      {multilanguage ? (
+        <>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={`ins-subtext-en-${section.id}`}>{t(lang, "section.subtextEn")}</Label>
+            <Input id={`ins-subtext-en-${section.id}`} value={section.subtext_en ?? ""}
+              onChange={(e) => onUpdate({ subtext_en: e.target.value })} placeholder="Short subtitle (EN)" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={`ins-subtext-de-${section.id}`}>{t(lang, "section.subtextDe")}</Label>
+            <Input id={`ins-subtext-de-${section.id}`} value={section.subtext_de ?? ""}
+              onChange={(e) => onUpdate({ subtext_de: e.target.value })} placeholder="Untertitel (DE)" />
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={`ins-subtext-${section.id}`}>{t(lang, "section.subtext")}</Label>
+          <Input id={`ins-subtext-${section.id}`} value={section.subtext ?? ""}
+            onChange={(e) => onUpdate({ subtext: e.target.value })} placeholder="Short subtitle (optional)" />
+        </div>
+      )}
 
       <div className="flex flex-col gap-1.5">
         <Label>{t(lang, "section.icon")}</Label>
@@ -300,7 +367,7 @@ export function InsightsSectionEditor({ section, lang = "en", onUpdate }: Insigh
           <p className="text-xs text-muted-foreground">{t(lang, "insightsSection.noItems")}</p>
         )}
         {items.map((item, idx) => (
-          <ItemEditor key={item.id} item={item} lang={lang}
+          <ItemEditor key={item.id} item={item} lang={lang} multilanguage={multilanguage}
             isFirst={idx === 0} isLast={idx === items.length - 1}
             onUpdate={(patch) => updateItem(item.id, patch)}
             onRemove={() => removeItem(item.id)}

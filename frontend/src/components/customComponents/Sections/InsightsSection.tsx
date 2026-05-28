@@ -14,34 +14,41 @@ export interface SectionProps {
   multilanguage?: boolean;
 }
 
-function DetailBlockView({ block }: { block: InsightDetailBlock }) {
+function DetailBlockView({ block, lang }: { block: InsightDetailBlock; lang: string }) {
+  const header = (lang === "de" ? block.header_de : block.header_en) || block.header;
+  const description =
+    (lang === "de" ? block.description_de : block.description_en) || block.description;
   return (
     <div className="flex flex-col gap-3">
       {block.imageUrl && (
         <img
           src={block.imageUrl}
-          alt={block.header ?? ""}
+          alt={header ?? ""}
           className="w-full rounded-xl object-cover"
           loading="lazy"
         />
       )}
-      {block.header && (
+      {header && (
         <h4 className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>
-          {block.header}
+          {header}
         </h4>
       )}
-      {block.description && (
+      {description && (
         <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
-          {block.description}
+          {description}
         </p>
       )}
     </div>
   );
 }
 
-function InsightCard({ item }: { item: InsightItem }) {
+function InsightCard({ item, lang }: { item: InsightItem; lang: string }) {
   const [open, setOpen] = useState(false);
   const sortedBlocks = [...item.detailBlocks].sort((a, b) => a.order - b.order);
+  const name = (lang === "de" ? item.name_de : item.name_en) || item.name;
+  const shortDescription =
+    (lang === "de" ? item.shortDescription_de : item.shortDescription_en) ||
+    item.shortDescription;
 
   return (
     <>
@@ -51,10 +58,10 @@ function InsightCard({ item }: { item: InsightItem }) {
         className="flex w-full flex-col gap-2 rounded-xl border border-border p-5 text-left transition-colors hover:border-[var(--color-primary)] hover:bg-muted/30"
       >
         <p className="text-sm font-semibold" style={{ color: "var(--color-text)" }}>
-          {item.name}
+          {name}
         </p>
-        <p className="text-xs leading-relaxed text-muted-foreground line-clamp-2">
-          {item.shortDescription}
+        <p className="line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+          {shortDescription}
         </p>
         <span className="mt-1 text-xs font-medium" style={{ color: "var(--color-primary)" }}>
           View details →
@@ -64,15 +71,15 @@ function InsightCard({ item }: { item: InsightItem }) {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{item.name}</DialogTitle>
+            <DialogTitle>{name}</DialogTitle>
           </DialogHeader>
-          {item.shortDescription && (
-            <p className="text-sm text-muted-foreground">{item.shortDescription}</p>
+          {shortDescription && (
+            <p className="text-sm text-muted-foreground">{shortDescription}</p>
           )}
           {sortedBlocks.length > 0 && (
             <div className="flex flex-col gap-6 pt-2">
               {sortedBlocks.map((block) => (
-                <DetailBlockView key={block.id} block={block} />
+                <DetailBlockView key={block.id} block={block} lang={lang} />
               ))}
             </div>
           )}
@@ -82,19 +89,20 @@ function InsightCard({ item }: { item: InsightItem }) {
   );
 }
 
-export function InsightsSection({ section }: SectionProps) {
+export function InsightsSection({ section, defaultLanguage = "en" }: SectionProps) {
+  const lang = defaultLanguage;
   const items = [...((section.data.items as InsightItem[] | undefined) ?? [])].sort(
     (a, b) => a.order - b.order
   );
 
   return (
-    <SectionShell section={section}>
+    <SectionShell section={section} lang={lang}>
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground">No insights added yet.</p>
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
           {items.map((item) => (
-            <InsightCard key={item.id} item={item} />
+            <InsightCard key={item.id} item={item} lang={lang} />
           ))}
         </div>
       )}

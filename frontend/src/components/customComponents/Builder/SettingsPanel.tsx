@@ -10,10 +10,12 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import type { Settings } from "@/api/settingsApi";
+import { FONT_OPTIONS } from "@/lib/applySettings";
 
 interface SettingsPanelProps {
   settings: Settings;
   onChange: (patch: Partial<Settings>) => void;
+  className?: string;
 }
 
 // Labelled color swatch + native <input type="color">
@@ -56,9 +58,9 @@ function ColorField({
   );
 }
 
-export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
+export function SettingsPanel({ settings, onChange, className }: SettingsPanelProps) {
   return (
-    <Card>
+    <Card className={cn("bg-muted/60", className)}>
       <CardHeader>
         <CardTitle>Global Settings</CardTitle>
       </CardHeader>
@@ -75,6 +77,29 @@ export function SettingsPanel({ settings, onChange }: SettingsPanelProps) {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="modern-1">Modern 1</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Typography */}
+        <div className="flex flex-col gap-1.5">
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            Typography
+          </span>
+          <Label htmlFor="fontFamily">Font</Label>
+          <Select
+            value={settings.fontFamily}
+            onValueChange={(val) => val && onChange({ fontFamily: val })}
+          >
+            <SelectTrigger id="fontFamily" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {FONT_OPTIONS.map((font) => (
+                <SelectItem key={font.id} value={font.id}>
+                  <span style={{ fontFamily: font.stack }}>{font.label}</span>
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

@@ -26,12 +26,17 @@ function uid() {
 function TimelineEditor({
   items,
   lang,
+  showEn,
+  showDe,
   onChange,
 }: {
   items: TimelineItem[];
   lang: string;
+  showEn: boolean;
+  showDe: boolean;
   onChange: (items: TimelineItem[]) => void;
 }) {
+  const multilanguage = showEn && showDe;
   function addItem() {
     const maxOrder = items.reduce((m, it) => Math.max(m, it.order), -1);
     onChange([...items, { id: uid(), order: maxOrder + 1, date: "", title: "", description: "" }]);
@@ -56,11 +61,31 @@ function TimelineEditor({
           </div>
           <Input placeholder={t(lang, "timelineSection.date")} value={item.date}
             onChange={(e) => update(item.id, { date: e.target.value })} />
-          <Input placeholder={t(lang, "timelineSection.entryTitle")} value={item.title}
-            onChange={(e) => update(item.id, { title: e.target.value })} />
-          <Textarea placeholder={t(lang, "timelineSection.description")} value={item.description ?? ""}
-            onChange={(e) => update(item.id, { description: e.target.value })}
-            className="min-h-[60px]" />
+          {multilanguage ? (
+            <>
+              <Input placeholder={t(lang, "timelineSection.entryTitleEn")} value={item.title_en ?? ""}
+                onChange={(e) => update(item.id, { title_en: e.target.value })} />
+              <Input placeholder={t(lang, "timelineSection.entryTitleDe")} value={item.title_de ?? ""}
+                onChange={(e) => update(item.id, { title_de: e.target.value })} />
+            </>
+          ) : (
+            <Input placeholder={t(lang, "timelineSection.entryTitle")} value={item.title}
+              onChange={(e) => update(item.id, { title: e.target.value })} />
+          )}
+          {multilanguage ? (
+            <>
+              <Textarea placeholder={t(lang, "timelineSection.descriptionEn")} value={item.description_en ?? ""}
+                onChange={(e) => update(item.id, { description_en: e.target.value })}
+                className="min-h-[60px]" />
+              <Textarea placeholder={t(lang, "timelineSection.descriptionDe")} value={item.description_de ?? ""}
+                onChange={(e) => update(item.id, { description_de: e.target.value })}
+                className="min-h-[60px]" />
+            </>
+          ) : (
+            <Textarea placeholder={t(lang, "timelineSection.description")} value={item.description ?? ""}
+              onChange={(e) => update(item.id, { description: e.target.value })}
+              className="min-h-[60px]" />
+          )}
         </div>
       ))}
       <Button variant="outline" size="sm" onClick={addItem}>
@@ -75,6 +100,8 @@ function TimelineEditor({
 function CommonFields({
   section,
   lang,
+  showEn,
+  showDe,
   onUpdate,
   iconInputRef,
   uploadingIcon,
@@ -82,30 +109,82 @@ function CommonFields({
 }: {
   section: PortfolioSection;
   lang: string;
+  showEn: boolean;
+  showDe: boolean;
   onUpdate: (patch: Partial<PortfolioSection>) => void;
   iconInputRef: React.RefObject<HTMLInputElement | null>;
   uploadingIcon: boolean;
   setUploadingIcon: (v: boolean) => void;
 }) {
+  const multilanguage = showEn && showDe;
   return (
     <>
-      <div className="flex flex-col gap-1.5">
-        <Label>{t(lang, "section.title")}</Label>
-        <Input value={section.title}
-          onChange={(e) => onUpdate({ title: e.target.value })} placeholder="Section title" />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <Label>{t(lang, "section.subtext")}</Label>
-        <Input value={section.subtext ?? ""}
-          onChange={(e) => onUpdate({ subtext: e.target.value })}
-          placeholder="Short subtitle (optional)" />
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <Label>{t(lang, "section.description")}</Label>
-        <Textarea value={section.description ?? ""}
-          onChange={(e) => onUpdate({ description: e.target.value })}
-          placeholder="Introductory paragraph (optional)" className="min-h-[60px]" />
-      </div>
+      {multilanguage ? (
+        <>
+          <div className="flex flex-col gap-1.5">
+            <Label>{t(lang, "section.titleEn")}</Label>
+            <Input value={section.title_en ?? ""}
+              onChange={(e) => onUpdate({ title_en: e.target.value })} placeholder="Section title (EN)" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label>{t(lang, "section.titleDe")}</Label>
+            <Input value={section.title_de ?? ""}
+              onChange={(e) => onUpdate({ title_de: e.target.value })} placeholder="Abschnittstitel (DE)" />
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          <Label>{t(lang, "section.title")}</Label>
+          <Input value={section.title}
+            onChange={(e) => onUpdate({ title: e.target.value })} placeholder="Section title" />
+        </div>
+      )}
+      {multilanguage ? (
+        <>
+          <div className="flex flex-col gap-1.5">
+            <Label>{t(lang, "section.subtextEn")}</Label>
+            <Input value={section.subtext_en ?? ""}
+              onChange={(e) => onUpdate({ subtext_en: e.target.value })}
+              placeholder="Short subtitle (EN)" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label>{t(lang, "section.subtextDe")}</Label>
+            <Input value={section.subtext_de ?? ""}
+              onChange={(e) => onUpdate({ subtext_de: e.target.value })}
+              placeholder="Untertitel (DE)" />
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          <Label>{t(lang, "section.subtext")}</Label>
+          <Input value={section.subtext ?? ""}
+            onChange={(e) => onUpdate({ subtext: e.target.value })}
+            placeholder="Short subtitle (optional)" />
+        </div>
+      )}
+      {multilanguage ? (
+        <>
+          <div className="flex flex-col gap-1.5">
+            <Label>{t(lang, "section.descriptionEn")}</Label>
+            <Textarea value={section.description_en ?? ""}
+              onChange={(e) => onUpdate({ description_en: e.target.value })}
+              placeholder="Introductory paragraph (EN)" className="min-h-[60px]" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label>{t(lang, "section.descriptionDe")}</Label>
+            <Textarea value={section.description_de ?? ""}
+              onChange={(e) => onUpdate({ description_de: e.target.value })}
+              placeholder="Einleitungsabsatz (DE)" className="min-h-[60px]" />
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          <Label>{t(lang, "section.description")}</Label>
+          <Textarea value={section.description ?? ""}
+            onChange={(e) => onUpdate({ description: e.target.value })}
+            placeholder="Introductory paragraph (optional)" className="min-h-[60px]" />
+        </div>
+      )}
       <div className="flex flex-col gap-1.5">
         <Label>{t(lang, "section.icon")}</Label>
         <div className="flex items-center gap-2">
@@ -151,9 +230,12 @@ function CommonFields({
 
 export interface SectionEditorProps {
   section: PortfolioSection;
+  index: number;
   isFirst: boolean;
   isLast: boolean;
   lang?: string;
+  showEn?: boolean;
+  showDe?: boolean;
   onUpdate: (patch: Partial<PortfolioSection>) => void;
   onRemove: () => void;
   onMoveUp: () => void;
@@ -162,14 +244,18 @@ export interface SectionEditorProps {
 
 export function SectionEditor({
   section,
+  index,
   isFirst,
   isLast,
   lang = "en",
+  showEn = true,
+  showDe = false,
   onUpdate,
   onRemove,
   onMoveUp,
   onMoveDown,
 }: SectionEditorProps) {
+  const multilanguage = showEn && showDe;
   const iconInputRef = useRef<HTMLInputElement>(null);
   const [uploadingIcon, setUploadingIcon] = useState(false);
 
@@ -183,7 +269,14 @@ export function SectionEditor({
     section.type === "insights";
 
   return (
-    <Card>
+    <div className="relative mt-2">
+      <span
+        className="absolute left-4 top-0 z-10 -translate-y-1/2 rounded-full px-2.5 py-0.5 text-xs font-bold text-white"
+        style={{ backgroundColor: "var(--color-primary)" }}
+      >
+        Block {index}
+      </span>
+    <Card className="ring-2 ring-foreground/10">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between gap-2">
           <div className="flex min-w-0 items-center gap-2">
@@ -191,7 +284,9 @@ export function SectionEditor({
               <img src={section.iconUrl} alt="" className="size-5 shrink-0 object-contain" />
             )}
             <span className="truncate text-sm font-semibold" style={{ color: "var(--color-text)" }}>
-              {section.title || typeLabel}
+              {(multilanguage
+                ? (lang === "de" ? section.title_de : section.title_en)
+                : section.title) || section.title || typeLabel}
             </span>
             <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
               {typeLabel}
@@ -215,13 +310,13 @@ export function SectionEditor({
         {hasDedicatedEditor ? (
           // Dedicated editors own title + subtext + description + icon + data
           section.type === "text" ? (
-            <TextSectionEditor section={section} lang={lang} onUpdate={onUpdate} />
+            <TextSectionEditor section={section} lang={lang} showEn={showEn} showDe={showDe} onUpdate={onUpdate} />
           ) : section.type === "image" ? (
-            <ImageSectionEditor section={section} lang={lang} onUpdate={onUpdate} />
+            <ImageSectionEditor section={section} lang={lang} showEn={showEn} showDe={showDe} onUpdate={onUpdate} />
           ) : section.type === "skills" ? (
-            <SkillsSectionEditor section={section} lang={lang} onUpdate={onUpdate} />
+            <SkillsSectionEditor section={section} lang={lang} showEn={showEn} showDe={showDe} onUpdate={onUpdate} />
           ) : (
-            <InsightsSectionEditor section={section} lang={lang} onUpdate={onUpdate} />
+            <InsightsSectionEditor section={section} lang={lang} showEn={showEn} showDe={showDe} onUpdate={onUpdate} />
           )
         ) : (
           // Timeline still uses generic common fields + inline data editor
@@ -229,6 +324,8 @@ export function SectionEditor({
             <CommonFields
               section={section}
               lang={lang}
+              showEn={showEn}
+              showDe={showDe}
               onUpdate={onUpdate}
               iconInputRef={iconInputRef}
               uploadingIcon={uploadingIcon}
@@ -238,11 +335,14 @@ export function SectionEditor({
             <TimelineEditor
               items={(section.data.items ?? []) as TimelineItem[]}
               lang={lang}
+              showEn={showEn}
+              showDe={showDe}
               onChange={(items) => onUpdate({ data: { items } })}
             />
           </>
         )}
       </CardContent>
     </Card>
+    </div>
   );
 }

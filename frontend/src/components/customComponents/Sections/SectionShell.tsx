@@ -2,10 +2,18 @@ import type { PortfolioSection } from "@/api/contentApi";
 
 interface SectionShellProps {
   section: PortfolioSection;
+  lang?: string;
   children: React.ReactNode;
 }
 
-export function SectionShell({ section, children }: SectionShellProps) {
+export function SectionShell({ section, lang = "en", children }: SectionShellProps) {
+  const title =
+    (lang === "de" ? section.title_de : section.title_en) || section.title;
+  const subtext =
+    (lang === "de" ? section.subtext_de : section.subtext_en) || section.subtext;
+  const description =
+    (lang === "de" ? section.description_de : section.description_en) || section.description;
+
   return (
     <section className="mx-auto max-w-5xl px-6 py-14">
       <div className="mb-6 flex items-center gap-3">
@@ -22,18 +30,18 @@ export function SectionShell({ section, children }: SectionShellProps) {
             className="text-2xl font-bold tracking-tight"
             style={{ color: "var(--color-text)" }}
           >
-            {section.title}
+            {title}
           </h2>
-          {section.subtext && (
+          {subtext && (
             <p className="mt-0.5 text-sm font-medium" style={{ color: "var(--color-primary)" }}>
-              {section.subtext}
+              {subtext}
             </p>
           )}
         </div>
       </div>
-      {section.description && (
+      {description && (
         <p className="mb-6 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          {section.description}
+          {description}
         </p>
       )}
       {children}
