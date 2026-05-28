@@ -85,18 +85,23 @@ export class InfrastructureStack extends cdk.Stack {
 function handler(event) {
   var request = event.request;
   var clientIp = event.viewer.ip;
-
   var allowedIps = ${JSON.stringify(props.adminAllowedIps)};
-  var isAllowed = allowedIps.includes(clientIp);
 
-  request.headers['x-editor-allowed'] = {
-    value: isAllowed ? 'true' : 'false'
-  };
+  var isAllowed = allowedIps.some(function(allowed) {
+    // Exact match (covers IPv4 and full IPv6)
+    if (allowed.toLowerCase() === clientIp.toLowerCase()) return true;
+    // IPv6 /64 prefix match: compare first 4 colon-separated groups.
+    // This ignores privacy-extension suffix that rotates on every connection.
+    if (clientIp.indexOf(':') !== -1 && allowed.indexOf(':') !== -1) {
+      var clientPrefix = clientIp.split(':').slice(0, 4).join(':').toLowerCase();
+      var allowedPrefix = allowed.split(':').slice(0, 4).join(':').toLowerCase();
+      if (clientPrefix === allowedPrefix) return true;
+    }
+    return false;
+  });
 
-  request.headers['x-viewer-ip'] = {
-    value: clientIp
-  };
-
+  request.headers['x-editor-allowed'] = { value: isAllowed ? 'true' : 'false' };
+  request.headers['x-viewer-ip'] = { value: clientIp };
   return request;
 }
         `),
