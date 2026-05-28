@@ -83,7 +83,7 @@ function InsightCard({ item }: { item: InsightItem }) {
 }
 
 export function InsightsSection({ section }: SectionProps) {
-  const items = ([...(section.data.items ?? [])] as InsightItem[]).sort(
+  const items = [...((section.data.items as InsightItem[] | undefined) ?? [])].sort(
     (a, b) => a.order - b.order
   );
 

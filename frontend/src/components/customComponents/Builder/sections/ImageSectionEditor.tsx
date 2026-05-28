@@ -87,7 +87,7 @@ export function ImageSectionEditor({ section, lang = "en", onUpdate }: ImageSect
   const iconInputRef = useRef<HTMLInputElement>(null);
   const [uploadingIcon, setUploadingIcon] = useState(false);
 
-  const images = ([...(section.data.images ?? [])] as SectionImage[]).sort(
+  const images = [...((section.data.images as SectionImage[] | undefined) ?? [])].sort(
     (a, b) => a.order - b.order
   );
 

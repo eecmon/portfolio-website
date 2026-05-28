@@ -9,7 +9,7 @@ export interface SectionProps {
 }
 
 export function SkillsSection({ section }: SectionProps) {
-  const groups = ([...(section.data.groups ?? [])] as SkillGroup[]).sort(
+  const groups = [...((section.data.groups as SkillGroup[] | undefined) ?? [])].sort(
     (a, b) => a.order - b.order
   );
 

@@ -197,7 +197,7 @@ export function InsightsSectionEditor({ section, lang = "en", onUpdate }: Insigh
   const iconInputRef = useRef<HTMLInputElement>(null);
   const [uploadingIcon, setUploadingIcon] = useState(false);
 
-  const items = ([...(section.data.items ?? [])] as InsightItem[]).sort(
+  const items = [...((section.data.items as InsightItem[] | undefined) ?? [])].sort(
     (a, b) => a.order - b.order
   );
 

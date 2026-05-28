@@ -8,7 +8,7 @@ export interface SectionProps {
 }
 
 export function TimelineSection({ section }: SectionProps) {
-  const items = ([...(section.data.items ?? [])] as TimelineItem[]).sort(
+  const items = [...((section.data.items as TimelineItem[] | undefined) ?? [])].sort(
     (a, b) => a.order - b.order
   );
 

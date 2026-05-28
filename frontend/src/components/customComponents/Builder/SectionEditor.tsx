@@ -78,12 +78,14 @@ function CommonFields({
   onUpdate,
   iconInputRef,
   uploadingIcon,
+  setUploadingIcon,
 }: {
   section: PortfolioSection;
   lang: string;
   onUpdate: (patch: Partial<PortfolioSection>) => void;
   iconInputRef: React.RefObject<HTMLInputElement | null>;
   uploadingIcon: boolean;
+  setUploadingIcon: (v: boolean) => void;
 }) {
   return (
     <>
@@ -114,8 +116,13 @@ function CommonFields({
             onChange={(e) => {
               const file = e.target.files?.[0];
               if (file) void (async () => {
-                const url = await uploadFile(file);
-                onUpdate({ iconUrl: url });
+                setUploadingIcon(true);
+                try {
+                  const url = await uploadFile(file);
+                  onUpdate({ iconUrl: url });
+                } finally {
+                  setUploadingIcon(false);
+                }
               })();
               e.target.value = "";
             }}
@@ -225,6 +232,7 @@ export function SectionEditor({
               onUpdate={onUpdate}
               iconInputRef={iconInputRef}
               uploadingIcon={uploadingIcon}
+              setUploadingIcon={setUploadingIcon}
             />
             <Separator />
             <TimelineEditor

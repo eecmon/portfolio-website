@@ -73,7 +73,7 @@ function ImageCarousel({ images }: { images: SectionImage[] }) {
 }
 
 export function ImageSection({ section }: SectionProps) {
-  const images = ([...(section.data.images ?? [])] as SectionImage[]).sort(
+  const images = [...((section.data.images as SectionImage[] | undefined) ?? [])].sort(
     (a, b) => a.order - b.order
   );
 

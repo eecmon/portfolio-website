@@ -87,7 +87,7 @@ export function SkillsSectionEditor({ section, lang = "en", onUpdate }: SkillsSe
   const iconInputRef = useRef<HTMLInputElement>(null);
   const [uploadingIcon, setUploadingIcon] = useState(false);
 
-  const groups = ([...(section.data.groups ?? [])] as SkillGroup[]).sort(
+  const groups = [...((section.data.groups as SkillGroup[] | undefined) ?? [])].sort(
     (a, b) => a.order - b.order
   );
 
