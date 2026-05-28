@@ -1,0 +1,29 @@
+/* ─── Portfolio theme variables ─────────────────────────────────── */
+/* Defaults are overridden at runtime by applySettings()            */
+/* after settings are fetched from the API.                         */
+
+:root {
+  --color-primary: #2563eb;
+  --color-secondary: #64748b;
+  --color-text: #111827;
+
+  /* Drive shadcn tokens with portfolio brand */
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --secondary-foreground: #64748b;
+  --foreground: #111827;
+  --muted-foreground: #6b7280;
+}
+
+/* ─── Theme definitions ─────────────────────────────────────────── */
+
+[data-theme="modern-1"] {
+  background: #ffffff;
+  color: var(--color-text);
+}
+
+/* ─── Base ──────────────────────────────────────────────────────── */
+
+body {
+  color: var(--color-text);
+}

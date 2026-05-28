@@ -59,7 +59,9 @@ export class InfrastructureStack extends cdk.Stack {
     const apiLambda = new lambda.Function(this, 'ApiLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'index.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, '../../backend/lambda')),
+      code: lambda.Code.fromAsset(path.join(__dirname, '../../backend/lambda'), {
+        exclude: ['*.test.js', '*.test.ts', '__tests__'],
+      }),
       environment: {
         TABLE_NAME: table.tableName,
         STAGE: stage,
