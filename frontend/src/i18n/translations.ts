@@ -59,6 +59,9 @@ export const translations: Record<UILang, Record<string, string>> = {
     // GitHub section editor
     "githubSection.tokenNote": "Contribution data is fetched server-side using the PORTFOLIO_GITHUB_PAT secret — no token is exposed to visitors.",
     "githubSection.showGraph": "Show contribution graph",
+    "githubSection.graphHidden": "Contribution graph is hidden.",
+    "githubSection.localPreview": "Contribution graph is not available in local preview mode.",
+    "githubSection.loadError": "Could not load contribution data.",
 
     // Contact section
     "contactSection.organisation": "Organisation",
@@ -195,6 +198,9 @@ export const translations: Record<UILang, Record<string, string>> = {
     // GitHub section editor
     "githubSection.tokenNote": "Beitragsdaten werden serverseitig über das Secret PORTFOLIO_GITHUB_PAT abgerufen — kein Token wird an Besucher weitergegeben.",
     "githubSection.showGraph": "Beitragsgraph anzeigen",
+    "githubSection.graphHidden": "Beitragsgraph ist ausgeblendet.",
+    "githubSection.localPreview": "Beitragsgraph ist in der lokalen Vorschau nicht verfügbar.",
+    "githubSection.loadError": "Beitragsdaten konnten nicht geladen werden.",
 
     // Contact section
     "contactSection.organisation": "Organisation",
