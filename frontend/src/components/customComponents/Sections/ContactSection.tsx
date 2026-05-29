@@ -276,7 +276,10 @@ export function ContactSection({ section, defaultLanguage = "en" }: SectionProps
 
   const isSubmitting = formState === "submitting";
   const canSubmit =
-    !isSubmitting && firstName.trim() && lastName.trim() && message.trim();
+    !isSubmitting &&
+    firstName.trim().length > 0 &&
+    lastName.trim().length > 0 &&
+    message.trim().length > 0;
 
   return (
     <section id={anchorId} className="mx-auto max-w-5xl scroll-mt-20 px-6 py-14">
