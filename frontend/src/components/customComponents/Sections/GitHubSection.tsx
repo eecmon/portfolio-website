@@ -39,7 +39,7 @@ function countToOpacity(count: number): number {
   return 1;
 }
 
-function ContributionHeatmap({ weeks }: { weeks: ContribWeek[] }) {
+function ContributionHeatmap({ weeks, username, totalContributions }: { weeks: ContribWeek[]; username: string; totalContributions: number }) {
   // Build month label positions, filtering too-close ones (min 4 weeks apart)
   const monthPositions: { label: string; col: number }[] = [];
   let lastMonth = -1;
@@ -61,7 +61,7 @@ function ContributionHeatmap({ weeks }: { weeks: ContribWeek[] }) {
 
   return (
     <div className="overflow-x-auto">
-      <div style={{ width: totalW, minWidth: totalW }}>
+      <div style={{ width: totalW, minWidth: totalW, display: "flex", flexDirection: "column", gap: 8 }}>
         {/* Month labels */}
         <div style={{ paddingLeft: DAY_LABEL_W, marginBottom: 4, position: "relative", height: 14 }}>
           {monthPositions.map((mp) => (
@@ -122,6 +122,19 @@ function ContributionHeatmap({ weeks }: { weeks: ContribWeek[] }) {
             })}
           </div>
         </div>
+
+        {/* Caption — right-aligned to grid width, not section width */}
+        <p style={{ textAlign: "right", fontSize: 11, color: "var(--color-muted-foreground, #6b7280)" }}>
+          {totalContributions.toLocaleString()} contributions in the last year ·{" "}
+          <a
+            href={`https://github.com/${username}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{ color: "var(--color-primary)" }}
+          >
+            github.com/{username}
+          </a>
+        </p>
       </div>
     </div>
   );
@@ -160,21 +173,11 @@ export function GitHubSection({ section, defaultLanguage = "en" }: SectionProps)
       ) : !contribData ? (
         <div className="h-28 animate-pulse rounded-xl bg-muted" />
       ) : (
-        <div className="flex flex-col gap-3">
-          <ContributionHeatmap weeks={contribData.weeks} />
-          <p className="text-right text-xs text-muted-foreground">
-            {contribData.totalContributions.toLocaleString()} contributions in the last year ·{" "}
-            <a
-              href={`https://github.com/${contribData.username}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:underline"
-              style={{ color: "var(--color-primary)" }}
-            >
-              github.com/{contribData.username}
-            </a>
-          </p>
-        </div>
+        <ContributionHeatmap
+          weeks={contribData.weeks}
+          username={contribData.username}
+          totalContributions={contribData.totalContributions}
+        />
       )}
     </SectionShell>
   );
