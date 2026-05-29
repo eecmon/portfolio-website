@@ -24,13 +24,6 @@ export interface HeroContent {
 
 export type SectionType = "timeline" | "text" | "image" | "skills" | "insights" | "github";
 
-// GitHub section
-export interface GitHubStat {
-  id: string;
-  label: string;
-  value: string;
-}
-
 export interface TimelineItem {
   id: string;
   order: number;

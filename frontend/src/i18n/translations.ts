@@ -54,12 +54,6 @@ export const translations: Record<UILang, Record<string, string>> = {
     // GitHub section editor
     "githubSection.tokenNote": "Contribution data is fetched server-side using the PORTFOLIO_GITHUB_PAT secret — no token is exposed to visitors.",
     "githubSection.showGraph": "Show contribution graph",
-    "githubSection.stats": "Stat cards",
-    "githubSection.addStat": "Add Stat",
-    "githubSection.noStats": "No stats yet — add cards to highlight key numbers.",
-    "githubSection.stat": "Stat",
-    "githubSection.statValue": "Value (e.g. 2,847)",
-    "githubSection.statLabel": "Label (e.g. Total commits)",
 
     // Generic section fields
     "section.title": "Title",
@@ -174,12 +168,6 @@ export const translations: Record<UILang, Record<string, string>> = {
     // GitHub section editor
     "githubSection.tokenNote": "Beitragsdaten werden serverseitig über das Secret PORTFOLIO_GITHUB_PAT abgerufen — kein Token wird an Besucher weitergegeben.",
     "githubSection.showGraph": "Beitragsgraph anzeigen",
-    "githubSection.stats": "Statistik-Karten",
-    "githubSection.addStat": "Statistik hinzufügen",
-    "githubSection.noStats": "Noch keine Statistiken — füge Karten hinzu, um wichtige Zahlen hervorzuheben.",
-    "githubSection.stat": "Statistik",
-    "githubSection.statValue": "Wert (z.B. 2.847)",
-    "githubSection.statLabel": "Bezeichnung (z.B. Commits gesamt)",
 
     // Generic section fields
     "section.title": "Titel",
