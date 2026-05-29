@@ -177,6 +177,7 @@ function sectionTypeLabels(lang: string): Record<SectionType, string> {
     image: t(lang, "sectionType.image"),
     skills: t(lang, "sectionType.skills"),
     insights: t(lang, "sectionType.insights"),
+    github: t(lang, "sectionType.github"),
   };
 }
 
@@ -420,6 +421,11 @@ export function PortfolioBuilder({
   const showEn = settings.multilanguage || lang === "en";
   const showDe = settings.multilanguage || lang === "de";
   const typeLabels = sectionTypeLabels(lang);
+
+  const githubAlreadyExists = content.sections.some((s) => s.type === "github");
+  const availableTypes = (Object.keys(typeLabels) as SectionType[]).filter(
+    (type) => type !== "github" || !githubAlreadyExists
+  );
 
   const previewNavItems: NavItem[] = [
     ...(content.hero.navLabel ? [{ label: content.hero.navLabel, anchor: slugify(content.hero.navLabel) }] : []),
@@ -666,7 +672,7 @@ export function PortfolioBuilder({
                       </button>
                       {insertMenuAt === idx + 1 && (
                         <div className="absolute left-1/2 top-full z-20 mt-1 w-40 -translate-x-1/2 overflow-hidden rounded-lg border border-border bg-background shadow-lg">
-                          {(Object.keys(typeLabels) as SectionType[]).map((type) => (
+                          {availableTypes.map((type) => (
                             <button
                               key={type}
                               type="button"
@@ -700,7 +706,7 @@ export function PortfolioBuilder({
               </button>
               {insertMenuAt === sortedSections.length && (
                 <div className="absolute bottom-full left-1/2 z-20 mb-1 w-44 -translate-x-1/2 overflow-hidden rounded-lg border border-border bg-background shadow-lg">
-                  {(Object.keys(typeLabels) as SectionType[]).map((type) => (
+                  {availableTypes.map((type) => (
                     <button
                       key={type}
                       type="button"

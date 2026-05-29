@@ -7,6 +7,7 @@ import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
+import * as iam from 'aws-cdk-lib/aws-iam';
 import * as path from 'path';
 
 export interface InfrastructureStackProps extends cdk.StackProps {
@@ -56,6 +57,8 @@ export class InfrastructureStack extends cdk.Stack {
         stage === 'prod' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
     });
 
+    const githubTokenParamName = `/portfolio/${stage}/github-token`;
+
     const apiLambda = new lambda.Function(this, 'ApiLambda', {
       runtime: lambda.Runtime.NODEJS_20_X,
       handler: 'index.handler',
@@ -66,11 +69,19 @@ export class InfrastructureStack extends cdk.Stack {
         TABLE_NAME: table.tableName,
         STAGE: stage,
         ASSETS_BUCKET: assetsBucket.bucketName,
+        GITHUB_TOKEN_PARAM: githubTokenParamName,
       },
     });
 
     table.grantReadWriteData(apiLambda);
     assetsBucket.grantReadWrite(apiLambda);
+
+    apiLambda.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['ssm:GetParameter'],
+      resources: [
+        `arn:aws:ssm:${this.region}:${this.account}:parameter${githubTokenParamName}`,
+      ],
+    }));
 
     const api = new apigateway.LambdaRestApi(this, 'PortfolioApi', {
       handler: apiLambda,

@@ -1,14 +1,78 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const dynamoClient = new DynamoDBClient({});
 const ddb = DynamoDBDocumentClient.from(dynamoClient);
 const s3 = new S3Client({});
+const ssm = new SSMClient({});
 
 const TABLE_NAME = process.env.TABLE_NAME;
 const ASSETS_BUCKET = process.env.ASSETS_BUCKET;
+const GITHUB_TOKEN_PARAM = process.env.GITHUB_TOKEN_PARAM;
+
+// Module-level cache for GitHub contribution data (1 hour TTL)
+let githubContribCache = null;
+let githubContribCachedAt = 0;
+const GITHUB_CACHE_TTL_MS = 60 * 60 * 1000;
+
+async function fetchGitHubContributions() {
+  const ssmResult = await ssm.send(new GetParameterCommand({
+    Name: GITHUB_TOKEN_PARAM,
+    WithDecryption: true,
+  }));
+  const token = ssmResult.Parameter.Value;
+
+  const query = `{
+    viewer {
+      login
+      contributionsCollection {
+        contributionCalendar {
+          totalContributions
+          weeks {
+            contributionDays {
+              date
+              contributionCount
+              weekday
+            }
+          }
+        }
+      }
+    }
+  }`;
+
+  const res = await fetch('https://api.github.com/graphql', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'User-Agent': 'portfolio-lambda',
+    },
+    body: JSON.stringify({ query }),
+  });
+
+  if (!res.ok) throw new Error(`GitHub API error: ${res.status}`);
+
+  const json = await res.json();
+  if (json.errors) throw new Error(`GitHub GraphQL error: ${JSON.stringify(json.errors)}`);
+
+  const viewer = json.data.viewer;
+  const calendar = viewer.contributionsCollection.contributionCalendar;
+
+  return {
+    username: viewer.login,
+    totalContributions: calendar.totalContributions,
+    weeks: calendar.weeks.map((w) => ({
+      days: w.contributionDays.map((d) => ({
+        date: d.date,
+        count: d.contributionCount,
+        weekday: d.weekday,
+      })),
+    })),
+  };
+}
 
 const defaultSettings = {
   theme: 'modern-1',
@@ -152,6 +216,21 @@ export const handler = async (event) => {
         key,
         publicUrl: `/${key}`,                    // FIX: was publicPath (frontend expected publicUrl)
       });
+    }
+
+    // ── GET /github-contributions ─────────────────────────────
+    if (method === 'GET' && requestPath.endsWith('/github-contributions')) {
+      if (!GITHUB_TOKEN_PARAM) {
+        return jsonResponse(503, { error: 'GitHub integration not configured' });
+      }
+
+      const now = Date.now();
+      if (!githubContribCache || now - githubContribCachedAt > GITHUB_CACHE_TTL_MS) {
+        githubContribCache = await fetchGitHubContributions();
+        githubContribCachedAt = now;
+      }
+
+      return jsonResponse(200, githubContribCache);
     }
 
     return jsonResponse(404, { error: 'Not found' });

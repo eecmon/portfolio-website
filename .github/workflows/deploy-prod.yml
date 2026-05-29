@@ -64,6 +64,14 @@ jobs:
 
       # ── Infrastructure ─────────────────────────────────────────
 
+      - name: Write GitHub PAT to SSM
+        run: |
+          aws ssm put-parameter \
+            --name "/portfolio/prod/github-token" \
+            --value "${{ secrets.PORTFOLIO_GITHUB_PAT }}" \
+            --type SecureString \
+            --overwrite
+
       - name: Generate stages.ts
         working-directory: infrastructure
         run: cp config/stages.example.ts config/stages.ts
