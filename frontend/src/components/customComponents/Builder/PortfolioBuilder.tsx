@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { NavLabelFields } from "./NavLabelFields";
 import { SettingsPanel } from "./SettingsPanel";
 import { SectionEditor } from "./SectionEditor";
 
@@ -16,7 +17,7 @@ import { Footer } from "@/components/customComponents/Footer";
 
 import { uploadFile } from "@/api/uploadApi";
 import { applySettings } from "@/lib/applySettings";
-import { slugify } from "@/lib/utils";
+import { buildNavItems } from "@/lib/navLabel";
 import type { Settings } from "@/api/settingsApi";
 import type { Content, HeroContent, HeroLink, PortfolioSection, SectionType } from "@/api/contentApi";
 import type { NavItem } from "@/components/customComponents/NavBar/NavBar";
@@ -431,12 +432,7 @@ export function PortfolioBuilder({
     return true;
   });
 
-  const previewNavItems: NavItem[] = [
-    ...(content.hero.navLabel ? [{ label: content.hero.navLabel, anchor: slugify(content.hero.navLabel) }] : []),
-    ...sortedSections
-      .filter((s) => s.navLabel)
-      .map((s) => ({ label: s.navLabel!, anchor: slugify(s.navLabel!) })),
-  ];
+  const previewNavItems: NavItem[] = buildNavItems(content.hero, sortedSections, previewLang);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">
@@ -611,15 +607,14 @@ export function PortfolioBuilder({
               <Separator />
 
               {/* Navigation anchor */}
-              <div className="flex flex-col gap-1.5">
-                <Label htmlFor="hero-nav-label">{t(lang, "nav.label")}</Label>
-                <Input
-                  id="hero-nav-label"
-                  value={content.hero.navLabel ?? ""}
-                  onChange={(e) => patchHero({ navLabel: e.target.value })}
-                  placeholder={t(lang, "nav.labelPlaceholder")}
-                />
-              </div>
+              <NavLabelFields
+                idPrefix="hero"
+                values={content.hero}
+                onUpdate={(patch) => patchHero(patch)}
+                lang={lang}
+                showEn={showEn}
+                showDe={showDe}
+              />
             </CardContent>
           </Card>
           </div>

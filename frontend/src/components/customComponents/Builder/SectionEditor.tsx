@@ -13,6 +13,7 @@ import { SkillsSectionEditor } from "./sections/SkillsSectionEditor";
 import { InsightsSectionEditor } from "./sections/InsightsSectionEditor";
 import { GitHubSectionEditor } from "./sections/GitHubSectionEditor";
 import { ContactSectionEditor } from "./sections/ContactSectionEditor";
+import { NavLabelFields } from "./NavLabelFields";
 
 import type { PortfolioSection, TimelineItem } from "@/api/contentApi";
 import { t } from "@/i18n";
@@ -352,14 +353,14 @@ export function SectionEditor({
 
         {/* Navigation anchor */}
         <Separator />
-        <div className="flex flex-col gap-1.5">
-          <Label>{t(lang, "nav.label")}</Label>
-          <Input
-            value={section.navLabel ?? ""}
-            onChange={(e) => onUpdate({ navLabel: e.target.value })}
-            placeholder={t(lang, "nav.labelPlaceholder")}
-          />
-        </div>
+        <NavLabelFields
+          idPrefix={`section-${section.id}`}
+          values={section}
+          onUpdate={onUpdate}
+          lang={lang}
+          showEn={showEn}
+          showDe={showDe}
+        />
       </CardContent>
     </Card>
     </div>

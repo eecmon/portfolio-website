@@ -1,4 +1,4 @@
-import { slugify } from "@/lib/utils";
+import { resolveNavAnchor } from "@/lib/navLabel";
 import type { PortfolioSection } from "@/api/contentApi";
 
 interface SectionShellProps {
@@ -15,7 +15,7 @@ export function SectionShell({ section, lang = "en", children }: SectionShellPro
   const description =
     (lang === "de" ? section.description_de : section.description_en) || section.description;
 
-  const anchorId = section.navLabel ? slugify(section.navLabel) : undefined;
+  const anchorId = resolveNavAnchor(section);
 
   return (
     <section id={anchorId} className="mx-auto max-w-5xl px-6 py-14 scroll-mt-20">

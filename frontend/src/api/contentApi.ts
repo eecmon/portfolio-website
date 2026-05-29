@@ -17,6 +17,8 @@ export interface HeroContent {
   profile_image_position?: string;
   profile_image_zoom?: number;
   navLabel?: string;
+  navLabel_en?: string;
+  navLabel_de?: string;
   links: HeroLink[];
 }
 
@@ -89,6 +91,8 @@ export interface PortfolioSection {
   type: SectionType;
   order: number;
   navLabel?: string;
+  navLabel_en?: string;
+  navLabel_de?: string;
   title: string;
   title_en?: string;
   title_de?: string;

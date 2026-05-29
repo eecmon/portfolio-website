@@ -1,5 +1,6 @@
 import { buttonVariants } from "@/components/ui/button";
-import { cn, slugify } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { resolveNavAnchor } from "@/lib/navLabel";
 import type { HeroContent } from "@/api/contentApi";
 
 interface HeroComponentProps {
@@ -98,11 +99,10 @@ export function HeroComponent({
     profile_image,
     profile_image_position,
     profile_image_zoom,
-    navLabel,
     links,
   } = content;
 
-  const anchorId = navLabel ? slugify(navLabel) : undefined;
+  const anchorId = resolveNavAnchor(content);
 
   const occupation = pickLang(lang, occupation_de, occupation_en);
   const summary = pickLang(lang, summary_de, summary_en);

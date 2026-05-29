@@ -8,7 +8,7 @@ import { SectionRenderer } from "@/components/customComponents/Sections/SectionR
 import { Footer } from "@/components/customComponents/Footer";
 import { PortfolioBuilder } from "@/components/customComponents/Builder";
 import { isLocalMode } from "@/api/apiMode";
-import { slugify } from "@/lib/utils";
+import { buildNavItems } from "@/lib/navLabel";
 
 function PortfolioApp() {
   const { content, updateContent } = usePortfolioContent();
@@ -27,12 +27,7 @@ function PortfolioApp() {
 
   if (!content || !settings) return null;
 
-  const navItems: NavItem[] = [
-    ...(content.hero.navLabel ? [{ label: content.hero.navLabel, anchor: slugify(content.hero.navLabel) }] : []),
-    ...[...( content.sections ?? [])].sort((a, b) => a.order - b.order)
-      .filter((s) => s.navLabel)
-      .map((s) => ({ label: s.navLabel!, anchor: slugify(s.navLabel!) })),
-  ];
+  const navItems: NavItem[] = buildNavItems(content.hero, content.sections ?? [], displayLang);
 
   if (isEditing && editorAllowed) {
     return (

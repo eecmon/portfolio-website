@@ -7,6 +7,10 @@ export const translations: Record<UILang, Record<string, string>> = {
     "nav.done": "Done",
     "nav.label": "Navigation label",
     "nav.labelPlaceholder": "e.g. About, Skills…",
+    "nav.labelEn": "Navigation label (EN)",
+    "nav.labelDe": "Navigation label (DE)",
+    "nav.labelPlaceholderEn": "e.g. About, Skills…",
+    "nav.labelPlaceholderDe": "z.B. Über mich, Fähigkeiten…",
 
     // Builder chrome
     "builder.title": "Portfolio Builder",
@@ -70,6 +74,7 @@ export const translations: Record<UILang, Record<string, string>> = {
     "contactSection.success": "Message sent! I'll get back to you soon.",
     "contactSection.error": "Something went wrong. Please try again.",
     "contactSection.rateLimit": "Too many messages sent. Please wait a few minutes.",
+    "contactSection.requiredNote": "Fields marked with * are required.",
     "contactSection.editorNote": "The form sends submissions to the CONTACT_EMAIL secret via SNS. Fields (organisation, first name, last name, message) are fixed.",
 
     // Generic section fields
@@ -138,6 +143,10 @@ export const translations: Record<UILang, Record<string, string>> = {
     "nav.done": "Fertig",
     "nav.label": "Navigationsbezeichnung",
     "nav.labelPlaceholder": "z.B. Über mich, Fähigkeiten…",
+    "nav.labelEn": "Navigationsbezeichnung (EN)",
+    "nav.labelDe": "Navigationsbezeichnung (DE)",
+    "nav.labelPlaceholderEn": "e.g. About, Skills…",
+    "nav.labelPlaceholderDe": "z.B. Über mich, Fähigkeiten…",
 
     // Builder chrome
     "builder.title": "Portfolio-Builder",
@@ -201,6 +210,7 @@ export const translations: Record<UILang, Record<string, string>> = {
     "contactSection.success": "Nachricht gesendet! Ich melde mich bald bei Ihnen.",
     "contactSection.error": "Etwas ist schiefgelaufen. Bitte erneut versuchen.",
     "contactSection.rateLimit": "Zu viele Nachrichten gesendet. Bitte warten Sie einige Minuten.",
+    "contactSection.requiredNote": "Mit * markierte Felder sind Pflichtfelder.",
     "contactSection.editorNote": "Das Formular sendet Einträge über SNS an das CONTACT_EMAIL-Secret. Die Felder (Organisation, Vor- und Nachname, Nachricht) sind fest.",
 
     // Generic section fields
