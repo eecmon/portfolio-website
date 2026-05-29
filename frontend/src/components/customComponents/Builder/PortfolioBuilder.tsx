@@ -204,7 +204,7 @@ function LinkRow({ link, index, lang, onUpdate, onRemove }: LinkRowProps) {
   async function handleIconUpload(file: File) {
     setIsUploadingIcon(true);
     try {
-      const url = await uploadFile(file);
+      const url = await uploadFile(file, { preset: "icon" });
       onUpdate({ iconUrl: url });
     } finally {
       setIsUploadingIcon(false);
@@ -346,7 +346,7 @@ export function PortfolioBuilder({
   async function handleProfileUpload(file: File) {
     setIsUploadingImage(true);
     try {
-      const url = await uploadFile(file);
+      const url = await uploadFile(file, { preset: "avatar" });
       patchHero({ profile_image: url });
     } finally {
       setIsUploadingImage(false);

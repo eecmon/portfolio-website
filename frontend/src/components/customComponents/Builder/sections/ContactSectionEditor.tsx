@@ -30,7 +30,7 @@ export function ContactSectionEditor({
   async function handleIconUpload(file: File) {
     setUploadingIcon(true);
     try {
-      const url = await uploadFile(file);
+      const url = await uploadFile(file, { preset: "icon" });
       onUpdate({ iconUrl: url });
     } finally {
       setUploadingIcon(false);

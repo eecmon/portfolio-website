@@ -32,7 +32,7 @@ function DetailBlockView({ block, lang }: { block: InsightDetailBlock; lang: str
         <img
           src={block.imageUrl}
           alt={header ?? ""}
-          className="aspect-[16/9] w-full rounded-xl object-cover"
+          className="h-auto max-w-full w-auto rounded-xl"
           loading="lazy"
         />
       )}
@@ -140,8 +140,8 @@ function InsightCard({ item, lang }: { item: InsightItem; lang: string }) {
         <DialogContent
           className={[
             "flex max-w-none flex-col gap-0 overflow-hidden p-0",
-            "h-[min(85vh,720px)] w-[min(720px,calc(100%-2rem))]",
-            "sm:max-w-none",
+            "h-[min(92vh,960px)] w-[min(720px,calc(100vw-2rem))]",
+            "!max-w-none sm:!max-w-none",
           ].join(" ")}
         >
           <div className="shrink-0 border-b border-border px-6 py-5 pr-14">

@@ -230,44 +230,39 @@ export function GitHubSection({ section, defaultLanguage = "en" }: SectionProps)
 
   return (
     <section id={anchorId} className="mx-auto max-w-5xl scroll-mt-20 px-6 py-14">
-      <div className="flex flex-col gap-8 md:gap-10">
-        {/* Row 1 — title/subtext (1/3) + description (2/3) */}
-        <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-3 md:gap-10 lg:gap-14">
-          <div className="flex flex-col gap-4 md:col-span-1">
-            {section.iconUrl && (
-              <img
-                src={section.iconUrl}
-                alt=""
-                aria-hidden="true"
-                className="size-7 shrink-0 object-contain"
-              />
-            )}
-            {title && (
-              <h2
-                className="text-2xl font-bold tracking-tight md:text-3xl"
-                style={{ color: "var(--color-text)" }}
-              >
-                {title}
-              </h2>
-            )}
-            {subtext && (
-              <p className="text-sm font-medium md:text-base" style={{ color: "var(--color-primary)" }}>
-                {subtext}
-              </p>
-            )}
-          </div>
-
-          {description && (
-            <div className="md:col-span-2">
-              <p className="text-sm leading-relaxed text-muted-foreground md:text-[15px]">
-                {description}
-              </p>
-            </div>
+      <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-5 md:gap-10 lg:gap-14">
+        {/* Left — title + subtext (1/5 on md+) */}
+        <div className="flex min-w-0 flex-col gap-4 md:col-span-1">
+          {section.iconUrl && (
+            <img
+              src={section.iconUrl}
+              alt=""
+              aria-hidden="true"
+              className="size-7 shrink-0 object-contain"
+            />
+          )}
+          {title && (
+            <h2
+              className="text-2xl font-bold tracking-tight"
+              style={{ color: "var(--color-text)" }}
+            >
+              {title}
+            </h2>
+          )}
+          {subtext && (
+            <p className="text-sm font-medium" style={{ color: "var(--color-primary)" }}>
+              {subtext}
+            </p>
           )}
         </div>
 
-        {/* Row 2 — graph aligned to container left */}
-        <div className="flex w-full justify-start">
+        {/* Right — description + graph (4/5 on md+) */}
+        <div className="flex min-w-0 flex-col gap-6 md:col-span-4">
+          {description && (
+            <p className="text-sm leading-relaxed text-muted-foreground md:text-[15px]">
+              {description}
+            </p>
+          )}
           <GitHubGraphPanel
             lang={lang}
             showGraph={showGraph}
