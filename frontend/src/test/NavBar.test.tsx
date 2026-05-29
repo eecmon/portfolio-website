@@ -59,6 +59,30 @@ describe("NavBar", () => {
     expect(screen.getByRole("button", { name: "Skills" })).toBeInTheDocument();
   });
 
+  it("opens mobile menu and navigates from a menu item", async () => {
+    const scrollIntoView = vi.fn();
+    const el = document.createElement("section");
+    el.id = "about";
+    el.scrollIntoView = scrollIntoView;
+    document.body.appendChild(el);
+
+    render(
+      <NavBar
+        {...base}
+        navItems={[
+          { label: "About", anchor: "about" },
+          { label: "Skills", anchor: "skills" },
+        ]}
+      />
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: "Open menu" }));
+    await userEvent.click(screen.getAllByRole("button", { name: "About" })[0]);
+    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: "smooth", block: "start" });
+
+    document.body.removeChild(el);
+  });
+
   it("renders no nav item buttons when navItems is empty", () => {
     render(<NavBar {...base} navItems={[]} />);
     // Only the Edit button (or none) — no section nav buttons

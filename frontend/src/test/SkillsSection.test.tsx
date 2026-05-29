@@ -41,4 +41,12 @@ describe("SkillsSection", () => {
     expect(screen.getByText("Python")).toBeInTheDocument();
     expect(screen.getByText("React")).toBeInTheDocument();
   });
+
+  it("applies modern-1 skills theme wrapper when theme is modern-1", () => {
+    const { container } = render(
+      <SkillsSection section={baseSection} theme="modern-1" />
+    );
+
+    expect(container.querySelector('[data-skills="modern-1"]')).toBeInTheDocument();
+  });
 });

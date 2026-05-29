@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { t } from "@/i18n";
 import type { UILang } from "@/i18n";
@@ -33,20 +35,77 @@ function scrollTo(anchor: string) {
   document.getElementById(anchor)?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
-function NavLinks({ items }: { items: NavItem[] }) {
+function NavLinks({ items, className }: { items: NavItem[]; className?: string }) {
   if (items.length === 0) return null;
   return (
-    <div className="flex items-center gap-5">
+    <div className={cn("items-center gap-4 lg:gap-5", className)}>
       {items.map((item) => (
         <button
           key={item.anchor}
           type="button"
           onClick={() => scrollTo(item.anchor)}
-          className="text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="whitespace-nowrap text-sm text-muted-foreground transition-colors hover:text-foreground"
         >
           {item.label}
         </button>
       ))}
+    </div>
+  );
+}
+
+function MobileNavMenu({ items, uiLang }: { items: NavItem[]; uiLang: UILang }) {
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
+
+  if (items.length === 0) return null;
+
+  return (
+    <div className="relative md:hidden">
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="size-7 rounded-full p-0"
+        aria-expanded={open}
+        aria-label={open ? t(uiLang, "nav.closeMenu") : t(uiLang, "nav.openMenu")}
+        onClick={() => setOpen((value) => !value)}
+      >
+        {open ? <X className="size-4" /> : <Menu className="size-4" />}
+      </Button>
+
+      {open && (
+        <>
+          <button
+            type="button"
+            className="fixed inset-0 z-40 bg-black/15"
+            aria-label={t(uiLang, "nav.closeMenu")}
+            onClick={() => setOpen(false)}
+          />
+          <div className="absolute top-[calc(100%+0.5rem)] right-0 z-50 min-w-[11rem] max-w-[calc(100vw-2rem)] rounded-2xl border border-border/60 bg-background/95 p-2 shadow-lg backdrop-blur-md">
+            {items.map((item) => (
+              <button
+                key={item.anchor}
+                type="button"
+                className="block w-full rounded-lg px-3 py-2 text-left text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                onClick={() => {
+                  scrollTo(item.anchor);
+                  setOpen(false);
+                }}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }
@@ -59,7 +118,7 @@ function LangSwitcher({
   onLanguageChange?: (lang: string) => void;
 }) {
   return (
-    <div className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide">
+    <div className="flex shrink-0 items-center gap-1 text-xs font-semibold uppercase tracking-wide">
       {(["en", "de"] as UILang[]).map((lang, i) => (
         <span key={lang} className="flex items-center gap-1">
           {i > 0 && <span className="text-border select-none">|</span>}
@@ -83,6 +142,31 @@ function LangSwitcher({
   );
 }
 
+function NavBarInner({
+  brand,
+  navItems,
+  rightControls,
+  uiLang,
+  className,
+}: {
+  brand: React.ReactNode;
+  navItems: NavItem[];
+  rightControls: React.ReactNode;
+  uiLang: UILang;
+  className?: string;
+}) {
+  return (
+    <nav className={cn("flex min-w-0 items-center gap-3 sm:gap-4 md:gap-6", className)}>
+      {brand}
+      <NavLinks items={navItems} className="hidden min-w-0 md:flex" />
+      <div className="ml-auto flex shrink-0 items-center gap-3 sm:gap-4">
+        <MobileNavMenu items={navItems} uiLang={uiLang} />
+        {rightControls}
+      </div>
+    </nav>
+  );
+}
+
 export function NavBar({
   firstName,
   lastName,
@@ -101,7 +185,7 @@ export function NavBar({
   const hideOnScroll = floating && !navVisible;
 
   const brand = (
-    <a href="/" className="flex items-center gap-2.5 no-underline shrink-0" aria-label="Home">
+    <a href="/" className="flex shrink-0 items-center gap-2.5 no-underline" aria-label="Home">
       <span
         className="flex size-7 items-center justify-center rounded-full text-xs font-semibold text-white"
         style={{ backgroundColor: "var(--color-primary)" }}
@@ -112,7 +196,7 @@ export function NavBar({
   );
 
   const rightControls = (
-    <div className="flex shrink-0 items-center gap-4">
+    <div className="flex shrink-0 items-center gap-3 sm:gap-4">
       {multilanguage && (
         <LangSwitcher displayLanguage={displayLanguage} onLanguageChange={onLanguageChange} />
       )}
@@ -120,7 +204,7 @@ export function NavBar({
         <Button
           variant={isEditing ? "outline" : "default"}
           size="sm"
-          className="h-7 rounded-full px-3.5 text-xs"
+          className="h-7 shrink-0 rounded-full px-3.5 text-xs"
           onClick={onToggleEdit}
         >
           {isEditing ? t(uiLang, "nav.done") : t(uiLang, "nav.edit")}
@@ -132,13 +216,13 @@ export function NavBar({
   if (!floating) {
     return (
       <header className="sticky top-0 z-10 border-b border-border/40 bg-background/80 backdrop-blur-sm">
-        <nav className="mx-auto flex h-12 max-w-5xl items-center gap-6 px-6">
-          {brand}
-          <div className="ml-auto flex shrink-0 items-center gap-6">
-            {navItems.length > 0 && <NavLinks items={navItems} />}
-            {rightControls}
-          </div>
-        </nav>
+        <NavBarInner
+          brand={brand}
+          navItems={navItems}
+          rightControls={rightControls}
+          uiLang={uiLang}
+          className="mx-auto h-12 max-w-5xl px-4 sm:px-6"
+        />
       </header>
     );
   }
@@ -146,18 +230,18 @@ export function NavBar({
   return (
     <header
       className={cn(
-        "pointer-events-none fixed top-4 right-0 left-0 z-50 flex justify-center px-6",
+        "pointer-events-none fixed top-4 right-0 left-0 z-50 flex justify-center px-4 sm:px-6",
         "transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none",
         hideOnScroll && "-translate-y-[calc(100%+1.5rem)] opacity-0"
       )}
     >
-      <nav className="pointer-events-auto flex w-full max-w-5xl items-center gap-6 rounded-full border border-border/60 bg-background/85 px-5 py-2.5 shadow-lg shadow-black/10 backdrop-blur-md">
-        {brand}
-        <div className="ml-auto flex shrink-0 items-center gap-6">
-          {navItems.length > 0 && <NavLinks items={navItems} />}
-          {rightControls}
-        </div>
-      </nav>
+      <NavBarInner
+        brand={brand}
+        navItems={navItems}
+        rightControls={rightControls}
+        uiLang={uiLang}
+        className="pointer-events-auto w-full min-w-0 max-w-5xl rounded-full border border-border/60 bg-background/85 px-3 py-2 shadow-lg shadow-black/10 backdrop-blur-md sm:px-5 sm:py-2.5"
+      />
     </header>
   );
 }

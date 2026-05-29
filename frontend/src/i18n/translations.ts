@@ -5,6 +5,8 @@ export const translations: Record<UILang, Record<string, string>> = {
     // Nav
     "nav.edit": "Edit",
     "nav.done": "Done",
+    "nav.openMenu": "Open menu",
+    "nav.closeMenu": "Close menu",
     "nav.label": "Navigation label",
     "nav.labelPlaceholder": "e.g. About, Skills…",
     "nav.labelEn": "Navigation label (EN)",
@@ -112,6 +114,7 @@ export const translations: Record<UILang, Record<string, string>> = {
     "skillsSection.addGroup": "Add Group",
     "skillsSection.addItem": "Add Skill",
     "skillsSection.noGroups": "No skill groups yet.",
+    "skillsSection.noItems": "No skills in this group yet.",
     "skillsSection.label": "Skill label",
 
     // Insights section editor
@@ -160,6 +163,8 @@ export const translations: Record<UILang, Record<string, string>> = {
     // Nav
     "nav.edit": "Bearbeiten",
     "nav.done": "Fertig",
+    "nav.openMenu": "Menü öffnen",
+    "nav.closeMenu": "Menü schließen",
     "nav.label": "Navigationsbezeichnung",
     "nav.labelPlaceholder": "z.B. Über mich, Fähigkeiten…",
     "nav.labelEn": "Navigationsbezeichnung (EN)",
@@ -267,6 +272,7 @@ export const translations: Record<UILang, Record<string, string>> = {
     "skillsSection.addGroup": "Gruppe hinzufügen",
     "skillsSection.addItem": "Fähigkeit hinzufügen",
     "skillsSection.noGroups": "Noch keine Gruppen.",
+    "skillsSection.noItems": "Noch keine Fähigkeiten in dieser Gruppe.",
     "skillsSection.label": "Bezeichnung",
 
     // Insights section editor
