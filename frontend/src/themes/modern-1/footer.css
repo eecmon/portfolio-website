@@ -1,0 +1,43 @@
+/* Modern 1 — footer band mirrors the hero diagonal secondary background */
+
+[data-footer="modern-1"] {
+  position: relative;
+  isolation: isolate;
+}
+
+[data-footer="modern-1"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--color-secondary) 24%, transparent);
+  /* Inverted hero slope: band fills from the bottom upward */
+  clip-path: polygon(0 6%, 100% 24%, 100% 100%, 0 100%);
+}
+
+[data-footer="modern-1"]::after {
+  content: "";
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  top: 15%;
+  height: 1px;
+  z-index: 0;
+  pointer-events: none;
+  background: color-mix(in srgb, var(--color-secondary) 65%, transparent);
+  transform: rotate(-3deg);
+  transform-origin: center;
+}
+
+[data-footer="modern-1"] .footer-divider {
+  display: none;
+}
+
+[data-footer="modern-1"] .footer-inner {
+  padding-top: 3.5rem;
+}
+
+[data-footer="modern-1"] .footer-link:hover {
+  color: var(--color-primary);
+}

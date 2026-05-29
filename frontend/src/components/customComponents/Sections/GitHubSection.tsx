@@ -68,7 +68,7 @@ function ContributionHeatmap({
   const totalW = DAY_LABEL_W + gridW;
 
   return (
-    <div className="overflow-x-auto">
+    <div className="w-fit max-w-full overflow-x-auto">
       <div style={{ width: totalW, minWidth: totalW, display: "flex", flexDirection: "column", gap: 8 }}>
         <div style={{ paddingLeft: DAY_LABEL_W, marginBottom: 4, position: "relative", height: 14 }}>
           {monthPositions.map((mp) => (
@@ -230,9 +230,9 @@ export function GitHubSection({ section, defaultLanguage = "en" }: SectionProps)
 
   return (
     <section id={anchorId} className="mx-auto max-w-5xl scroll-mt-20 px-6 py-14">
-      <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-5 md:gap-10 lg:gap-14">
-        {/* Left — icon + title row, subtext below (1/5 on md+) */}
-        <div className="flex min-w-0 flex-col gap-4 md:col-span-1">
+      <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-[minmax(240px,34%)_max-content] md:gap-10 lg:grid-cols-[minmax(260px,36%)_max-content] lg:gap-14">
+        {/* Left — icon + title row, subtext below */}
+        <div className="flex min-w-0 flex-col gap-4">
           {(section.iconUrl || title) && (
             <div className="flex min-w-0 items-center gap-3">
               {section.iconUrl && (
@@ -260,8 +260,8 @@ export function GitHubSection({ section, defaultLanguage = "en" }: SectionProps)
           )}
         </div>
 
-        {/* Right — graph on top, description below (4/5 on md+) */}
-        <div className="flex min-w-0 flex-col gap-6 md:col-span-4">
+        {/* Right — graph width; description aligns with graph */}
+        <div className="flex w-fit max-w-full min-w-0 flex-col gap-6">
           <GitHubGraphPanel
             lang={lang}
             showGraph={showGraph}

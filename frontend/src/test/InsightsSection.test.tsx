@@ -14,6 +14,7 @@ const baseSection: PortfolioSection = {
         id: "item1",
         order: 0,
         name: "Portfolio Site",
+        subtext: "Personal project",
         shortDescription: "My personal portfolio built with React.",
         detailBlocks: [
           { id: "b1", order: 0, header: "Tech Stack", description: "React + AWS + CDK." },
@@ -32,17 +33,18 @@ const baseSection: PortfolioSection = {
 };
 
 describe("InsightsSection", () => {
-  it("renders item cards with name and short description", () => {
+  it("renders item cards with name, optional subtext, and description", () => {
     render(<InsightsSection section={baseSection} />);
     expect(screen.getByText("Portfolio Site")).toBeInTheDocument();
+    expect(screen.getByText("Personal project")).toBeInTheDocument();
     expect(screen.getByText("My personal portfolio built with React.")).toBeInTheDocument();
     expect(screen.getByText("Open Source Tool")).toBeInTheDocument();
   });
 
-  it("renders block preview inside card", () => {
+  it("does not render block preview content on cards", () => {
     render(<InsightsSection section={baseSection} />);
-    expect(screen.getByText("Tech Stack")).toBeInTheDocument();
-    expect(screen.getByText("React + AWS + CDK.")).toBeInTheDocument();
+    expect(screen.queryByText("Tech Stack")).not.toBeInTheDocument();
+    expect(screen.queryByText("React + AWS + CDK.")).not.toBeInTheDocument();
   });
 
   it("opens modal when View details is clicked", async () => {
@@ -63,5 +65,65 @@ describe("InsightsSection", () => {
     expect(screen.getAllByText("React + AWS + CDK.").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Outcome")).toBeInTheDocument();
     expect(screen.getByText("Live at mantasec.dev")).toBeInTheDocument();
+  });
+
+  it("shows view more card as sixth slot when there are more than six projects", async () => {
+    const manyItems = Array.from({ length: 8 }, (_, index) => ({
+      id: `item-${index}`,
+      order: index,
+      name: `Project ${index + 1}`,
+      shortDescription: `Description ${index + 1}`,
+      detailBlocks: [],
+    }));
+
+    render(
+      <InsightsSection
+        section={{
+          ...baseSection,
+          data: { items: manyItems },
+        }}
+      />
+    );
+
+    expect(screen.getByText("Project 1")).toBeInTheDocument();
+    expect(screen.getByText("Project 5")).toBeInTheDocument();
+    expect(screen.queryByText("Project 6")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "View more" })).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "View more" }));
+
+    expect(screen.getByText("Project 6")).toBeInTheDocument();
+    expect(screen.getByText("Project 8")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "View more" })).not.toBeInTheDocument();
+  });
+
+  it("applies modern-1 insight card theme wrapper when theme is modern-1", () => {
+    const { container } = render(
+      <InsightsSection section={baseSection} theme="modern-1" />
+    );
+
+    expect(container.querySelector('[data-insight-cards="modern-1"]')).toBeInTheDocument();
+  });
+
+  it("uses German view more label when defaultLanguage is de", () => {
+    const manyItems = Array.from({ length: 7 }, (_, index) => ({
+      id: `item-${index}`,
+      order: index,
+      name: `Project ${index + 1}`,
+      shortDescription: "",
+      detailBlocks: [],
+    }));
+
+    render(
+      <InsightsSection
+        section={{
+          ...baseSection,
+          data: { items: manyItems },
+        }}
+        defaultLanguage="de"
+      />
+    );
+
+    expect(screen.getByRole("button", { name: "Mehr anzeigen" })).toBeInTheDocument();
   });
 });

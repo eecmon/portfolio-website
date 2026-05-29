@@ -82,6 +82,9 @@ export interface InsightItem {
   name: string;
   name_en?: string;
   name_de?: string;
+  subtext?: string;
+  subtext_en?: string;
+  subtext_de?: string;
   shortDescription: string;
   shortDescription_en?: string;
   shortDescription_de?: string;

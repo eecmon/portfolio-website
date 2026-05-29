@@ -329,6 +329,10 @@ function ItemEditor({
             onChange={(e) => onUpdate({ name_en: e.target.value })} />
           <Input placeholder={t(lang, "insightsSection.nameDe")} value={item.name_de ?? ""}
             onChange={(e) => onUpdate({ name_de: e.target.value })} />
+          <Input placeholder={t(lang, "insightsSection.subtextEn")} value={item.subtext_en ?? ""}
+            onChange={(e) => onUpdate({ subtext_en: e.target.value })} />
+          <Input placeholder={t(lang, "insightsSection.subtextDe")} value={item.subtext_de ?? ""}
+            onChange={(e) => onUpdate({ subtext_de: e.target.value })} />
           <Textarea placeholder={t(lang, "insightsSection.shortDescriptionEn")} value={item.shortDescription_en ?? ""}
             onChange={(e) => onUpdate({ shortDescription_en: e.target.value })} className="min-h-[60px]" />
           <Textarea placeholder={t(lang, "insightsSection.shortDescriptionDe")} value={item.shortDescription_de ?? ""}
@@ -338,6 +342,8 @@ function ItemEditor({
         <>
           <Input placeholder={t(lang, "insightsSection.name")} value={item.name}
             onChange={(e) => onUpdate({ name: e.target.value })} />
+          <Input placeholder={t(lang, "insightsSection.subtext")} value={item.subtext ?? ""}
+            onChange={(e) => onUpdate({ subtext: e.target.value })} />
           <Textarea placeholder={t(lang, "insightsSection.shortDescription")} value={item.shortDescription}
             onChange={(e) => onUpdate({ shortDescription: e.target.value })} className="min-h-[60px]" />
         </>
@@ -404,6 +410,7 @@ export function InsightsSectionEditor({ section, lang = "en", showEn = true, sho
       id: uid(),
       order: maxOrder + 1,
       name: "",
+      subtext: "",
       shortDescription: "",
       detailBlocks: [],
     };

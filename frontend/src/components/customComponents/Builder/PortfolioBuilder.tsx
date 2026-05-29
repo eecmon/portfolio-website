@@ -855,9 +855,10 @@ export function PortfolioBuilder({
               sections={content.sections}
               defaultLanguage={previewLang}
               multilanguage={settings.multilanguage}
+              theme={settings.theme}
             />
           </main>
-          <Footer hero={content.hero} defaultLanguage={previewLang} />
+          <Footer hero={content.hero} defaultLanguage={previewLang} theme={settings.theme} />
         </div>
       </div>
     </div>

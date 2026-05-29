@@ -1,5 +1,7 @@
 @import "../themes/modern-1/button.css";
 @import "../themes/modern-1/hero-background.css";
+@import "../themes/modern-1/insights-cards.css";
+@import "../themes/modern-1/footer.css";
 
 /* ─── Portfolio theme variables ─────────────────────────────────── */
 /* Defaults are overridden at runtime by applySettings()            */

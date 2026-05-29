@@ -6,15 +6,22 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import type { InsightDetailBlock, InsightItem, PortfolioSection } from "@/api/contentApi";
+import type { InsightDetailBlock, InsightItem } from "@/api/contentApi";
+import { getInsightCardsThemeId } from "@/themes/insightsCardsRegistry";
 import { SectionShell } from "./SectionShell";
+import type { SectionProps } from "./TimelineSection";
 import { t } from "@/i18n";
 
-export interface SectionProps {
-  section: PortfolioSection;
-  defaultLanguage?: string;
-  multilanguage?: boolean;
-}
+const CARD_WIDTH = 300;
+const CARD_HEIGHT = 230;
+const INITIAL_VISIBLE_COUNT = 5;
+
+const cardFrameClassName = "insight-card relative shrink-0 overflow-hidden rounded-xl";
+const cardFrameStyle = {
+  width: CARD_WIDTH,
+  maxWidth: "100%",
+  height: CARD_HEIGHT,
+} as const;
 
 function blockText(block: InsightDetailBlock, lang: string) {
   const header = (lang === "de" ? block.header_de : block.header_en) || block.header;
@@ -50,90 +57,41 @@ function DetailBlockView({ block, lang }: { block: InsightDetailBlock; lang: str
   );
 }
 
-function CardBlockPreview({
-  blocks,
-  lang,
-  compact = false,
-}: {
-  blocks: InsightDetailBlock[];
-  lang: string;
-  compact?: boolean;
-}) {
-  const sorted = [...blocks].sort((a, b) => a.order - b.order);
-  const preview = sorted[0];
-  if (!preview) return null;
-
-  const { header, description } = blockText(preview, lang);
-
-  return (
-    <div className="flex flex-col gap-2">
-      {!compact && preview.imageUrl && (
-        <img
-          src={preview.imageUrl}
-          alt={header ?? ""}
-          className="aspect-[16/9] w-full rounded-lg object-cover"
-          loading="lazy"
-        />
-      )}
-      {header && (
-        <p className="text-sm font-medium" style={{ color: "var(--color-text)" }}>
-          {header}
-        </p>
-      )}
-      {description && (
-        <p
-          className={[
-            "whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground",
-            compact ? "line-clamp-3" : "line-clamp-8",
-          ].join(" ")}
-        >
-          {description}
-        </p>
-      )}
-    </div>
-  );
-}
-
 function InsightCard({ item, lang }: { item: InsightItem; lang: string }) {
   const [open, setOpen] = useState(false);
   const sortedBlocks = [...item.detailBlocks].sort((a, b) => a.order - b.order);
   const name = (lang === "de" ? item.name_de : item.name_en) || item.name;
-  const shortDescription =
+  const subtext = (lang === "de" ? item.subtext_de : item.subtext_en) || item.subtext;
+  const description =
     (lang === "de" ? item.shortDescription_de : item.shortDescription_en) ||
     item.shortDescription;
-  const cardBackground =
-    "color-mix(in srgb, var(--color-secondary) 32%, var(--background, #ffffff))";
 
   return (
     <>
-      <article
-        className="relative flex h-[288px] flex-col overflow-hidden rounded-xl border border-border transition-colors hover:border-[var(--color-primary)]"
-        style={{ backgroundColor: cardBackground }}
-      >
-        <div className="flex flex-1 flex-col gap-2 overflow-hidden p-5 pb-14">
-          <p className="text-base font-semibold leading-snug" style={{ color: "var(--color-text)" }}>
+      <article className={`${cardFrameClassName} flex flex-col border-2 border-border bg-background`} style={cardFrameStyle}>
+        <div className="insight-card__body flex min-h-0 flex-1 flex-col gap-1.5 overflow-hidden p-4 pb-12">
+          <p
+            className="line-clamp-2 text-base font-semibold leading-snug"
+            style={{ color: "var(--color-text)" }}
+          >
             {name}
           </p>
-          {shortDescription && (
-            <p className="line-clamp-1 text-sm leading-relaxed text-muted-foreground">
-              {shortDescription}
+          {subtext && (
+            <p
+              className="line-clamp-1 text-sm font-medium leading-snug"
+              style={{ color: "var(--color-primary)" }}
+            >
+              {subtext}
             </p>
           )}
-          {sortedBlocks.length > 0 ? (
-            <CardBlockPreview blocks={sortedBlocks} lang={lang} compact />
-          ) : (
-            !shortDescription && (
-              <p className="text-sm text-muted-foreground">{t(lang, "insightsSection.noDetailContent")}</p>
-            )
+          {description && (
+            <p className="min-h-0 flex-1 text-sm leading-relaxed text-muted-foreground line-clamp-[6]">
+              {description}
+            </p>
           )}
         </div>
 
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-end px-5 pt-10 pb-4"
-          style={{
-            background: `linear-gradient(to top, ${cardBackground} 35%, transparent 100%)`,
-          }}
-        >
+        <div className="insight-card__actions pointer-events-none absolute inset-x-0 bottom-0 flex justify-end px-4 pt-8 pb-3">
           <Button
             type="button"
             variant="default"
@@ -167,10 +125,13 @@ function InsightCard({ item, lang }: { item: InsightItem; lang: string }) {
                 {name}
               </DialogTitle>
             </DialogHeader>
-            {shortDescription && (
-              <p className="mt-2 text-base leading-relaxed text-muted-foreground">
-                {shortDescription}
+            {subtext && (
+              <p className="mt-2 text-base font-medium" style={{ color: "var(--color-primary)" }}>
+                {subtext}
               </p>
+            )}
+            {description && (
+              <p className="mt-2 text-base leading-relaxed text-muted-foreground">{description}</p>
             )}
           </div>
 
@@ -191,21 +152,47 @@ function InsightCard({ item, lang }: { item: InsightItem; lang: string }) {
   );
 }
 
-export function InsightsSection({ section, defaultLanguage = "en" }: SectionProps) {
+function ViewMoreCard({ lang, onClick }: { lang: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${cardFrameClassName} flex flex-col items-center justify-center border-2 border-border bg-background text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-primary)] focus-visible:ring-offset-2`}
+      style={cardFrameStyle}
+      aria-label={t(lang, "insightsSection.viewMore")}
+    >
+      <span className="insight-card__body text-lg font-semibold" style={{ color: "var(--color-text)" }}>
+        {t(lang, "insightsSection.viewMore")}
+      </span>
+    </button>
+  );
+}
+
+export function InsightsSection({ section, defaultLanguage = "en", theme }: SectionProps) {
   const lang = defaultLanguage;
+  const [showAll, setShowAll] = useState(false);
   const items = [...((section.data.items as InsightItem[] | undefined) ?? [])].sort(
     (a, b) => a.order - b.order
   );
+  const hasMore = items.length > INITIAL_VISIBLE_COUNT + 1;
+  const visibleItems = showAll || !hasMore ? items : items.slice(0, INITIAL_VISIBLE_COUNT);
+  const insightCardsThemeId = theme ? getInsightCardsThemeId(theme) : null;
 
   return (
     <SectionShell section={section} lang={lang}>
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t(lang, "insightsSection.noItems")}</p>
       ) : (
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-          {items.map((item) => (
+        <div
+          className="flex flex-wrap gap-5"
+          {...(insightCardsThemeId ? { "data-insight-cards": insightCardsThemeId } : {})}
+        >
+          {visibleItems.map((item) => (
             <InsightCard key={item.id} item={item} lang={lang} />
           ))}
+          {hasMore && !showAll && (
+            <ViewMoreCard lang={lang} onClick={() => setShowAll(true)} />
+          )}
         </div>
       )}
     </SectionShell>

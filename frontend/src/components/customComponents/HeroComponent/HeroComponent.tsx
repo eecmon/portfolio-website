@@ -70,7 +70,10 @@ function LinkButton({ name, href, iconUrl }: { name: string; href: string; iconU
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-1.5")}
+      className={cn(
+        buttonVariants({ variant: "outline", size: "sm" }),
+        "hero-link gap-1.5 border-[var(--color-primary)]"
+      )}
     >
       {iconUrl && (
         <img
