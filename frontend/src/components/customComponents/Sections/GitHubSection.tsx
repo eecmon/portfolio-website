@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { PortfolioSection } from "@/api/contentApi";
 import { isLocalMode } from "@/api/apiMode";
+import { computeGitHubHeatmapLayout } from "@/lib/githubHeatmapLayout";
 import { resolveNavAnchor } from "@/lib/navLabel";
 import { t } from "@/i18n";
 
@@ -26,9 +27,6 @@ interface GitHubContribData {
   weeks: ContribWeek[];
 }
 
-const CELL = 11;
-const GAP = 2;
-const DAY_LABEL_W = 26;
 const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const DAY_LABELS: Record<number, string> = { 1: "Mon", 3: "Wed", 5: "Fri" };
 
@@ -49,6 +47,29 @@ function ContributionHeatmap({
   username: string;
   totalContributions: number;
 }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [layout, setLayout] = useState(() => computeGitHubHeatmapLayout(640, weeks.length));
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    const update = () => {
+      setLayout(computeGitHubHeatmapLayout(el.clientWidth, weeks.length));
+    };
+
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [weeks.length]);
+
+  const { cell, gap, dayLabelW, totalW, scale } = layout;
+  const step = cell + gap;
+  const contentHeight = 18 + cell * 7 + gap * 6 + 8 + 24;
+  const displayWidth = totalW * scale;
+  const displayHeight = contentHeight * scale;
+
   const monthPositions: { label: string; col: number }[] = [];
   let lastMonth = -1;
   weeks.forEach((week, colIdx) => {
@@ -64,18 +85,32 @@ function ContributionHeatmap({
     }
   });
 
-  const gridW = weeks.length * (CELL + GAP) - GAP;
-  const totalW = DAY_LABEL_W + gridW;
-
   return (
-    <div className="w-fit max-w-full overflow-x-auto">
-      <div style={{ width: totalW, minWidth: totalW, display: "flex", flexDirection: "column", gap: 8 }}>
-        <div style={{ paddingLeft: DAY_LABEL_W, marginBottom: 4, position: "relative", height: 14 }}>
+    <div ref={containerRef} className="w-full min-w-0">
+      <div
+        style={{
+          width: scale < 1 ? displayWidth : totalW,
+          maxWidth: "100%",
+          height: scale < 1 ? displayHeight : undefined,
+          overflow: scale < 1 ? "hidden" : undefined,
+        }}
+      >
+        <div
+          style={{
+            width: totalW,
+            transform: scale < 1 ? `scale(${scale})` : undefined,
+            transformOrigin: "top left",
+            display: "flex",
+            flexDirection: "column",
+            gap: 8,
+          }}
+        >
+        <div style={{ paddingLeft: dayLabelW, marginBottom: 4, position: "relative", height: 14 }}>
           {monthPositions.map((mp) => (
             <span
               key={mp.label + mp.col}
               className="absolute text-[10px] text-muted-foreground"
-              style={{ left: DAY_LABEL_W + mp.col * (CELL + GAP) }}
+              style={{ left: dayLabelW + mp.col * step }}
             >
               {mp.label}
             </span>
@@ -83,13 +118,13 @@ function ContributionHeatmap({
         </div>
 
         <div style={{ display: "flex" }}>
-          <div style={{ width: DAY_LABEL_W, flexShrink: 0 }}>
+          <div style={{ width: dayLabelW, flexShrink: 0 }}>
             {[0, 1, 2, 3, 4, 5, 6].map((dow) => (
               <div
                 key={dow}
                 style={{
-                  height: CELL,
-                  marginBottom: dow < 6 ? GAP : 0,
+                  height: cell,
+                  marginBottom: dow < 6 ? gap : 0,
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "flex-end",
@@ -101,7 +136,7 @@ function ContributionHeatmap({
             ))}
           </div>
 
-          <div style={{ display: "flex", gap: GAP }}>
+          <div style={{ display: "flex", gap }}>
             {weeks.map((week, colIdx) => {
               const byWeekday: Record<number, ContribDay> = {};
               week.days.forEach((d) => {
@@ -109,7 +144,7 @@ function ContributionHeatmap({
               });
 
               return (
-                <div key={colIdx} style={{ display: "flex", flexDirection: "column", gap: GAP }}>
+                <div key={colIdx} style={{ display: "flex", flexDirection: "column", gap }}>
                   {[0, 1, 2, 3, 4, 5, 6].map((dow) => {
                     const day = byWeekday[dow];
                     const opacity = day ? countToOpacity(day.count) : 0;
@@ -122,8 +157,8 @@ function ContributionHeatmap({
                             : ""
                         }
                         style={{
-                          width: CELL,
-                          height: CELL,
+                          width: cell,
+                          height: cell,
                           borderRadius: 2,
                           flexShrink: 0,
                           backgroundColor:
@@ -140,7 +175,7 @@ function ContributionHeatmap({
           </div>
         </div>
 
-        <p style={{ textAlign: "right", fontSize: 11, color: "var(--color-muted-foreground, #6b7280)" }}>
+        <p className="text-right text-[11px] leading-relaxed break-words text-muted-foreground">
           {totalContributions.toLocaleString()} contributions in the last year ·{" "}
           <a
             href={`https://github.com/${username}`}
@@ -151,6 +186,7 @@ function ContributionHeatmap({
             github.com/{username}
           </a>
         </p>
+        </div>
       </div>
     </div>
   );
@@ -230,9 +266,9 @@ export function GitHubSection({ section, defaultLanguage = "en" }: SectionProps)
 
   return (
     <section id={anchorId} className="mx-auto max-w-5xl scroll-mt-20 px-6 py-14">
-      <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-[minmax(240px,34%)_minmax(0,1fr)] md:gap-10 lg:grid-cols-[minmax(260px,36%)_minmax(0,1fr)] lg:gap-14">
-        {/* Left — icon + title row, subtext below */}
-        <div className="flex min-w-0 flex-col gap-4">
+      <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-[auto_minmax(0,1fr)] md:gap-x-10 md:gap-y-6 lg:gap-x-14">
+        {/* Left column — title + subtitle, spans both rows on md+ */}
+        <div className="flex min-w-0 flex-col gap-4 md:row-span-2 md:max-w-xs lg:max-w-sm">
           {(section.iconUrl || title) && (
             <div className="flex min-w-0 items-center gap-3">
               {section.iconUrl && (
@@ -254,28 +290,31 @@ export function GitHubSection({ section, defaultLanguage = "en" }: SectionProps)
             </div>
           )}
           {subtext && (
-            <p className="text-sm font-medium" style={{ color: "var(--color-primary)" }}>
+            <p
+              className="min-w-0 text-sm font-medium break-words"
+              style={{ color: "var(--color-primary)" }}
+            >
               {subtext}
             </p>
           )}
         </div>
 
-        {/* Right — graph width; description wraps to match graph */}
-        <div className="min-w-0">
-          <figure className="m-0 w-fit max-w-full min-w-0">
-            <GitHubGraphPanel
-              lang={lang}
-              showGraph={showGraph}
-              contribData={contribData}
-              loadError={loadError}
-            />
-            {description && (
-              <figcaption className="mt-6 block min-w-0 text-sm leading-relaxed break-words text-muted-foreground md:text-[15px]">
-                {description}
-              </figcaption>
-            )}
-          </figure>
+        {/* Right column — row 1: graph */}
+        <div className="min-w-0 w-full">
+          <GitHubGraphPanel
+            lang={lang}
+            showGraph={showGraph}
+            contribData={contribData}
+            loadError={loadError}
+          />
         </div>
+
+        {/* Right column — row 2: description */}
+        {description && (
+          <p className="min-w-0 text-sm leading-relaxed break-words text-muted-foreground md:text-[15px]">
+            {description}
+          </p>
+        )}
       </div>
     </section>
   );
