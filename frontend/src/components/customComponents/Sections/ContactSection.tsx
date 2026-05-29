@@ -283,9 +283,29 @@ export function ContactSection({ section, defaultLanguage = "en" }: SectionProps
 
   return (
     <section id={anchorId} className="mx-auto max-w-5xl scroll-mt-20 px-6 py-14">
-      <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-4 md:gap-10 lg:gap-14">
-        {/* Left — intro copy (~1/4 on md+) */}
-        <div className="flex flex-col gap-4 md:col-span-1 md:pt-1">
+      <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-3 md:gap-10 lg:gap-14">
+        {/* Form — left 2/3 on md+; below intro on mobile */}
+        <div className="order-2 md:order-1 md:col-span-2">
+          <ContactFormPanel
+            section={section}
+            lang={lang}
+            formState={formState}
+            organisation={organisation}
+            setOrganisation={setOrganisation}
+            firstName={firstName}
+            setFirstName={setFirstName}
+            lastName={lastName}
+            setLastName={setLastName}
+            message={message}
+            setMessage={setMessage}
+            isSubmitting={isSubmitting}
+            canSubmit={canSubmit}
+            onSubmit={handleSubmit}
+          />
+        </div>
+
+        {/* Intro copy — right 1/3 on md+; above form on mobile */}
+        <div className="order-1 flex flex-col gap-4 md:order-2 md:col-span-1 md:pt-1">
           {section.iconUrl && (
             <img
               src={section.iconUrl}
@@ -312,26 +332,6 @@ export function ContactSection({ section, defaultLanguage = "en" }: SectionProps
               {description}
             </p>
           )}
-        </div>
-
-        {/* Right — form (~3/4 on md+) */}
-        <div className="md:col-span-3">
-          <ContactFormPanel
-            section={section}
-            lang={lang}
-            formState={formState}
-            organisation={organisation}
-            setOrganisation={setOrganisation}
-            firstName={firstName}
-            setFirstName={setFirstName}
-            lastName={lastName}
-            setLastName={setLastName}
-            message={message}
-            setMessage={setMessage}
-            isSubmitting={isSubmitting}
-            canSubmit={canSubmit}
-            onSubmit={handleSubmit}
-          />
         </div>
       </div>
     </section>

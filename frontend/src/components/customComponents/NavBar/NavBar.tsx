@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { t } from "@/i18n";
 import type { UILang } from "@/i18n";
+import { cn } from "@/lib/utils";
+import { useScrollNavVisibility } from "@/lib/useScrollNavVisibility";
 
 export interface NavItem {
   label: string;
@@ -95,6 +97,8 @@ export function NavBar({
 }: NavBarProps) {
   const initials = getInitials(firstName, lastName);
   const uiLang = displayLanguage as UILang;
+  const navVisible = useScrollNavVisibility({ enabled: floating });
+  const hideOnScroll = floating && !navVisible;
 
   const brand = (
     <a href="/" className="flex items-center gap-2.5 no-underline shrink-0" aria-label="Home">
@@ -138,7 +142,13 @@ export function NavBar({
   }
 
   return (
-    <header className="pointer-events-none fixed top-4 right-0 left-0 z-50 flex justify-center px-6">
+    <header
+      className={cn(
+        "pointer-events-none fixed top-4 right-0 left-0 z-50 flex justify-center px-6",
+        "transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none",
+        hideOnScroll && "-translate-y-[calc(100%+1.5rem)] opacity-0"
+      )}
+    >
       <nav className="pointer-events-auto flex w-full max-w-5xl items-center justify-between gap-6 rounded-full border border-border/60 bg-background/85 px-5 py-2.5 shadow-lg shadow-black/10 backdrop-blur-md">
         {brand}
         {navItems.length > 0 && <NavLinks items={navItems} />}
