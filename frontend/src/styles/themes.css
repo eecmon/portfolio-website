@@ -1,3 +1,5 @@
+@import "../themes/modern-1/button.css";
+
 /* ─── Portfolio theme variables ─────────────────────────────────── */
 /* Defaults are overridden at runtime by applySettings()            */
 /* after settings are fetched from the API.                         */

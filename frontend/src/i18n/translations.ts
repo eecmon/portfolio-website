@@ -125,6 +125,8 @@ export const translations: Record<UILang, Record<string, string>> = {
     "insightsSection.blockDescription": "Block description",
     "insightsSection.blockDescriptionEn": "Block description (EN)",
     "insightsSection.blockDescriptionDe": "Block description (DE)",
+    "insightsSection.viewDetails": "View details →",
+    "insightsSection.noDetailContent": "No detail content yet.",
 
     // Footer
     "footer.resumeOf": "This is the resume website of",
@@ -264,6 +266,8 @@ export const translations: Record<UILang, Record<string, string>> = {
     "insightsSection.blockDescription": "Block-Beschreibung",
     "insightsSection.blockDescriptionEn": "Block-Beschreibung (EN)",
     "insightsSection.blockDescriptionDe": "Block-Beschreibung (DE)",
+    "insightsSection.viewDetails": "Details anzeigen →",
+    "insightsSection.noDetailContent": "Noch keine Detailinhalte.",
 
     // Footer
     "footer.resumeOf": "Dies ist die Lebenslauf-Website von",
