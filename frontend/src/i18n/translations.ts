@@ -93,6 +93,7 @@ export const translations: Record<UILang, Record<string, string>> = {
     "section.icon": "Icon",
     "section.moveUp": "Move up",
     "section.moveDown": "Move down",
+    "section.expand": "Expand section",
     "section.remove": "Remove section",
 
     // Image section editor
@@ -234,6 +235,7 @@ export const translations: Record<UILang, Record<string, string>> = {
     "section.icon": "Symbol",
     "section.moveUp": "Nach oben",
     "section.moveDown": "Nach unten",
+    "section.expand": "Abschnitt öffnen",
     "section.remove": "Abschnitt entfernen",
 
     // Image section editor

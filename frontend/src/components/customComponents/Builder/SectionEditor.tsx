@@ -236,6 +236,8 @@ export interface SectionEditorProps {
   index: number;
   isFirst: boolean;
   isLast: boolean;
+  isExpanded?: boolean;
+  onExpand?: () => void;
   lang?: string;
   showEn?: boolean;
   showDe?: boolean;
@@ -250,6 +252,8 @@ export function SectionEditor({
   index,
   isFirst,
   isLast,
+  isExpanded = true,
+  onExpand,
   lang = "en",
   showEn = true,
   showDe = false,
@@ -273,6 +277,11 @@ export function SectionEditor({
     section.type === "github" ||
     section.type === "contact";
 
+  const displayTitle =
+    (multilanguage ? (lang === "de" ? section.title_de : section.title_en) : section.title) ||
+    section.title ||
+    typeLabel;
+
   return (
     <div className="relative mt-2">
       <span
@@ -281,22 +290,55 @@ export function SectionEditor({
       >
         Block {index}
       </span>
-    <Card className="ring-2 ring-foreground/10">
-      <CardHeader className="pb-2">
+    <Card
+      className={[
+        "border-0 transition-[background-color,box-shadow]",
+        isExpanded
+          ? "ring-2 ring-[color-mix(in_srgb,var(--color-primary)_45%,transparent)]"
+          : "bg-muted/50 ring-1 ring-border/50 hover:bg-muted/65",
+      ].join(" ")}
+      style={
+        isExpanded
+          ? {
+              backgroundColor:
+                "color-mix(in srgb, var(--color-primary) 11%, var(--background, #ffffff))",
+            }
+          : undefined
+      }
+    >
+      <CardHeader className={isExpanded ? "pb-2" : "py-3"}>
         <div className="flex items-center justify-between gap-2">
-          <div className="flex min-w-0 items-center gap-2">
-            {section.iconUrl && (
-              <img src={section.iconUrl} alt="" className="size-5 shrink-0 object-contain" />
-            )}
-            <span className="truncate text-sm font-semibold" style={{ color: "var(--color-text)" }}>
-              {(multilanguage
-                ? (lang === "de" ? section.title_de : section.title_en)
-                : section.title) || section.title || typeLabel}
-            </span>
-            <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
-              {typeLabel}
-            </span>
-          </div>
+          {isExpanded ? (
+            <div className="flex min-w-0 items-center gap-2">
+              {section.iconUrl && (
+                <img src={section.iconUrl} alt="" className="size-5 shrink-0 object-contain" />
+              )}
+              <span className="truncate text-sm font-semibold" style={{ color: "var(--color-text)" }}>
+                {displayTitle}
+              </span>
+              <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                {typeLabel}
+              </span>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={onExpand}
+              aria-expanded={false}
+              aria-label={t(lang, "section.expand")}
+              className="flex min-w-0 flex-1 items-center gap-2 rounded-md text-left transition-colors hover:text-[var(--color-primary)]"
+            >
+              {section.iconUrl && (
+                <img src={section.iconUrl} alt="" className="size-5 shrink-0 object-contain" />
+              )}
+              <span className="truncate text-sm font-semibold" style={{ color: "var(--color-text)" }}>
+                {displayTitle}
+              </span>
+              <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                {typeLabel}
+              </span>
+            </button>
+          )}
           <div className="flex shrink-0 items-center gap-1">
             <button type="button" disabled={isFirst} onClick={onMoveUp}
               className="rounded p-1 text-muted-foreground hover:text-foreground disabled:opacity-30"
@@ -311,7 +353,8 @@ export function SectionEditor({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col gap-4">
+      {isExpanded && (
+      <CardContent className="flex flex-col gap-4 [&_[data-slot=input]]:bg-white [&_[data-slot=textarea]]:bg-white dark:[&_[data-slot=input]]:bg-background dark:[&_[data-slot=textarea]]:bg-background">
         {hasDedicatedEditor ? (
           // Dedicated editors own title + subtext + description + icon + data
           section.type === "text" ? (
@@ -362,6 +405,7 @@ export function SectionEditor({
           showDe={showDe}
         />
       </CardContent>
+      )}
     </Card>
     </div>
   );
