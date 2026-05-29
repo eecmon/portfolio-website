@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import type { PortfolioSection, SkillGroup } from "@/api/contentApi";
+import type { SkillGroup } from "@/api/contentApi";
 import { getSkillsThemeId } from "@/themes/skillsRegistry";
 import { SectionShell } from "./SectionShell";
 import type { SectionProps } from "./TimelineSection";

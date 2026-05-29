@@ -5,6 +5,8 @@ export const translations: Record<UILang, Record<string, string>> = {
     // Nav
     "nav.edit": "Edit",
     "nav.done": "Done",
+    "nav.openMenu": "Open menu",
+    "nav.closeMenu": "Close menu",
     "nav.label": "Navigation label",
     "nav.labelPlaceholder": "e.g. About, Skills…",
     "nav.labelEn": "Navigation label (EN)",
@@ -161,6 +163,8 @@ export const translations: Record<UILang, Record<string, string>> = {
     // Nav
     "nav.edit": "Bearbeiten",
     "nav.done": "Fertig",
+    "nav.openMenu": "Menü öffnen",
+    "nav.closeMenu": "Menü schließen",
     "nav.label": "Navigationsbezeichnung",
     "nav.labelPlaceholder": "z.B. Über mich, Fähigkeiten…",
     "nav.labelEn": "Navigationsbezeichnung (EN)",
