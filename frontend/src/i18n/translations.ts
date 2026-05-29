@@ -112,6 +112,7 @@ export const translations: Record<UILang, Record<string, string>> = {
     "skillsSection.addGroup": "Add Group",
     "skillsSection.addItem": "Add Skill",
     "skillsSection.noGroups": "No skill groups yet.",
+    "skillsSection.noItems": "No skills in this group yet.",
     "skillsSection.label": "Skill label",
 
     // Insights section editor
@@ -267,6 +268,7 @@ export const translations: Record<UILang, Record<string, string>> = {
     "skillsSection.addGroup": "Gruppe hinzufügen",
     "skillsSection.addItem": "Fähigkeit hinzufügen",
     "skillsSection.noGroups": "Noch keine Gruppen.",
+    "skillsSection.noItems": "Noch keine Fähigkeiten in dieser Gruppe.",
     "skillsSection.label": "Bezeichnung",
 
     // Insights section editor
