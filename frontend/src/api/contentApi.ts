@@ -22,7 +22,7 @@ export interface HeroContent {
 
 // ── Portfolio Sections ────────────────────────────────────────────
 
-export type SectionType = "timeline" | "text" | "image" | "skills" | "insights" | "github";
+export type SectionType = "timeline" | "text" | "image" | "skills" | "insights" | "github" | "contact";
 
 export interface TimelineItem {
   id: string;

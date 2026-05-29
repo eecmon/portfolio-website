@@ -50,10 +50,27 @@ export const translations: Record<UILang, Record<string, string>> = {
     "sectionType.skills": "Skills",
     "sectionType.insights": "Insights",
     "sectionType.github": "GitHub Activity",
+    "sectionType.contact": "Contact",
 
     // GitHub section editor
     "githubSection.tokenNote": "Contribution data is fetched server-side using the PORTFOLIO_GITHUB_PAT secret — no token is exposed to visitors.",
     "githubSection.showGraph": "Show contribution graph",
+
+    // Contact section
+    "contactSection.organisation": "Organisation",
+    "contactSection.organisationPlaceholder": "Company or organisation (optional)",
+    "contactSection.firstName": "First Name",
+    "contactSection.firstNamePlaceholder": "Jane",
+    "contactSection.lastName": "Last Name",
+    "contactSection.lastNamePlaceholder": "Doe",
+    "contactSection.message": "Message",
+    "contactSection.messagePlaceholder": "What's on your mind?",
+    "contactSection.send": "Send Message",
+    "contactSection.sending": "Sending…",
+    "contactSection.success": "Message sent! I'll get back to you soon.",
+    "contactSection.error": "Something went wrong. Please try again.",
+    "contactSection.rateLimit": "Too many messages sent. Please wait a few minutes.",
+    "contactSection.editorNote": "The form sends submissions to the CONTACT_EMAIL secret via SNS. Fields (organisation, first name, last name, message) are fixed.",
 
     // Generic section fields
     "section.title": "Title",
@@ -164,10 +181,27 @@ export const translations: Record<UILang, Record<string, string>> = {
     "sectionType.skills": "Fähigkeiten",
     "sectionType.insights": "Einblicke",
     "sectionType.github": "GitHub-Aktivität",
+    "sectionType.contact": "Kontakt",
 
     // GitHub section editor
     "githubSection.tokenNote": "Beitragsdaten werden serverseitig über das Secret PORTFOLIO_GITHUB_PAT abgerufen — kein Token wird an Besucher weitergegeben.",
     "githubSection.showGraph": "Beitragsgraph anzeigen",
+
+    // Contact section
+    "contactSection.organisation": "Organisation",
+    "contactSection.organisationPlaceholder": "Unternehmen oder Organisation (optional)",
+    "contactSection.firstName": "Vorname",
+    "contactSection.firstNamePlaceholder": "Maria",
+    "contactSection.lastName": "Nachname",
+    "contactSection.lastNamePlaceholder": "Mustermann",
+    "contactSection.message": "Nachricht",
+    "contactSection.messagePlaceholder": "Was möchten Sie mitteilen?",
+    "contactSection.send": "Nachricht senden",
+    "contactSection.sending": "Wird gesendet…",
+    "contactSection.success": "Nachricht gesendet! Ich melde mich bald bei Ihnen.",
+    "contactSection.error": "Etwas ist schiefgelaufen. Bitte erneut versuchen.",
+    "contactSection.rateLimit": "Zu viele Nachrichten gesendet. Bitte warten Sie einige Minuten.",
+    "contactSection.editorNote": "Das Formular sendet Einträge über SNS an das CONTACT_EMAIL-Secret. Die Felder (Organisation, Vor- und Nachname, Nachricht) sind fest.",
 
     // Generic section fields
     "section.title": "Titel",

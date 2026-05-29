@@ -8,6 +8,8 @@ import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as iam from 'aws-cdk-lib/aws-iam';
+import * as sns from 'aws-cdk-lib/aws-sns';
+import * as snsSubs from 'aws-cdk-lib/aws-sns-subscriptions';
 import * as path from 'path';
 
 export interface InfrastructureStackProps extends cdk.StackProps {
@@ -57,6 +59,16 @@ export class InfrastructureStack extends cdk.Stack {
         stage === 'prod' ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
     });
 
+    // ── SNS Contact topic ─────────────────────────────────────────
+    const contactTopic = new sns.Topic(this, 'ContactTopic', {
+      topicName: `portfolio-contact-${stage}`,
+      displayName: 'Portfolio Contact Form',
+    });
+
+    contactTopic.addSubscription(
+      new snsSubs.EmailSubscription(props.contactEmail)
+    );
+
     const githubTokenParamName = `/portfolio/${stage}/github-token`;
 
     const apiLambda = new lambda.Function(this, 'ApiLambda', {
@@ -70,11 +82,13 @@ export class InfrastructureStack extends cdk.Stack {
         STAGE: stage,
         ASSETS_BUCKET: assetsBucket.bucketName,
         GITHUB_TOKEN_PARAM: githubTokenParamName,
+        CONTACT_TOPIC_ARN: contactTopic.topicArn,
       },
     });
 
     table.grantReadWriteData(apiLambda);
     assetsBucket.grantReadWrite(apiLambda);
+    contactTopic.grantPublish(apiLambda);
 
     apiLambda.addToRolePolicy(new iam.PolicyStatement({
       actions: ['ssm:GetParameter'],

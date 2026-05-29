@@ -178,6 +178,7 @@ function sectionTypeLabels(lang: string): Record<SectionType, string> {
     skills: t(lang, "sectionType.skills"),
     insights: t(lang, "sectionType.insights"),
     github: t(lang, "sectionType.github"),
+    contact: t(lang, "sectionType.contact"),
   };
 }
 
@@ -422,10 +423,13 @@ export function PortfolioBuilder({
   const showDe = settings.multilanguage || lang === "de";
   const typeLabels = sectionTypeLabels(lang);
 
-  const githubAlreadyExists = content.sections.some((s) => s.type === "github");
-  const availableTypes = (Object.keys(typeLabels) as SectionType[]).filter(
-    (type) => type !== "github" || !githubAlreadyExists
-  );
+  const githubAlreadyExists  = content.sections.some((s) => s.type === "github");
+  const contactAlreadyExists = content.sections.some((s) => s.type === "contact");
+  const availableTypes = (Object.keys(typeLabels) as SectionType[]).filter((type) => {
+    if (type === "github"  && githubAlreadyExists)  return false;
+    if (type === "contact" && contactAlreadyExists) return false;
+    return true;
+  });
 
   const previewNavItems: NavItem[] = [
     ...(content.hero.navLabel ? [{ label: content.hero.navLabel, anchor: slugify(content.hero.navLabel) }] : []),

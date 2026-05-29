@@ -12,6 +12,7 @@ import { ImageSectionEditor } from "./sections/ImageSectionEditor";
 import { SkillsSectionEditor } from "./sections/SkillsSectionEditor";
 import { InsightsSectionEditor } from "./sections/InsightsSectionEditor";
 import { GitHubSectionEditor } from "./sections/GitHubSectionEditor";
+import { ContactSectionEditor } from "./sections/ContactSectionEditor";
 
 import type { PortfolioSection, TimelineItem } from "@/api/contentApi";
 import { t } from "@/i18n";
@@ -268,7 +269,8 @@ export function SectionEditor({
     section.type === "image" ||
     section.type === "skills" ||
     section.type === "insights" ||
-    section.type === "github";
+    section.type === "github" ||
+    section.type === "contact";
 
   return (
     <div className="relative mt-2">
@@ -319,8 +321,10 @@ export function SectionEditor({
             <SkillsSectionEditor section={section} lang={lang} showEn={showEn} showDe={showDe} onUpdate={onUpdate} />
           ) : section.type === "insights" ? (
             <InsightsSectionEditor section={section} lang={lang} showEn={showEn} showDe={showDe} onUpdate={onUpdate} />
-          ) : (
+          ) : section.type === "github" ? (
             <GitHubSectionEditor section={section} lang={lang} showEn={showEn} showDe={showDe} onUpdate={onUpdate} />
+          ) : (
+            <ContactSectionEditor section={section} lang={lang} showEn={showEn} showDe={showDe} onUpdate={onUpdate} />
           )
         ) : (
           // Timeline still uses generic common fields + inline data editor

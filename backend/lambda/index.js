@@ -2,16 +2,23 @@ import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DynamoDBDocumentClient, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 import { SSMClient, GetParameterCommand } from '@aws-sdk/client-ssm';
+import { SNSClient, PublishCommand } from '@aws-sdk/client-sns';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 const dynamoClient = new DynamoDBClient({});
 const ddb = DynamoDBDocumentClient.from(dynamoClient);
 const s3 = new S3Client({});
 const ssm = new SSMClient({});
+const snsClient = new SNSClient({});
 
 const TABLE_NAME = process.env.TABLE_NAME;
 const ASSETS_BUCKET = process.env.ASSETS_BUCKET;
 const GITHUB_TOKEN_PARAM = process.env.GITHUB_TOKEN_PARAM;
+const CONTACT_TOPIC_ARN = process.env.CONTACT_TOPIC_ARN;
+
+// IP rate limit for contact form: ip → lastSubmittedAt timestamp
+const contactRateLimit = new Map();
+const RATE_LIMIT_MS = 10 * 60 * 1000; // 10 minutes per IP
 
 // Module-level cache for GitHub contribution data (1 hour TTL)
 let githubContribCache = null;
@@ -216,6 +223,66 @@ export const handler = async (event) => {
         key,
         publicUrl: `/${key}`,                    // FIX: was publicPath (frontend expected publicUrl)
       });
+    }
+
+    // ── POST /contact ─────────────────────────────────────────
+    if (method === 'POST' && requestPath.endsWith('/contact')) {
+      const body = JSON.parse(event.body || '{}');
+
+      // Layer 1: honeypot — bots fill the hidden "website" field
+      if (body.website) {
+        return jsonResponse(200, { success: true });
+      }
+
+      // Layer 2: minimum form time (must be ≥ 3 seconds since page noted _t)
+      const formAge = Date.now() - (Number(body._t) || 0);
+      if (formAge < 3000) {
+        return jsonResponse(200, { success: true });
+      }
+
+      // Layer 3: IP rate limit
+      const ip =
+        event.headers?.['x-viewer-ip'] ||
+        event.headers?.['X-Viewer-Ip'] ||
+        'unknown';
+      const lastSubmit = contactRateLimit.get(ip);
+      if (lastSubmit && Date.now() - lastSubmit < RATE_LIMIT_MS) {
+        return jsonResponse(429, { error: 'Too many requests. Please wait before trying again.' });
+      }
+
+      // Validate required fields
+      const firstName = (body.firstName || '').trim();
+      const lastName  = (body.lastName  || '').trim();
+      const message   = (body.message   || '').trim();
+      const org       = (body.organisation || '').trim();
+
+      if (!firstName || !lastName || !message) {
+        return jsonResponse(400, { error: 'First name, last name, and message are required.' });
+      }
+      if (message.length > 2000) {
+        return jsonResponse(400, { error: 'Message must be 2000 characters or fewer.' });
+      }
+
+      if (!CONTACT_TOPIC_ARN) {
+        return jsonResponse(503, { error: 'Contact form not configured.' });
+      }
+
+      const lines = [
+        org ? `Organisation: ${org}` : null,
+        `Name: ${firstName} ${lastName}`,
+        '',
+        message,
+      ].filter((l) => l !== null).join('\n');
+
+      await snsClient.send(new PublishCommand({
+        TopicArn: CONTACT_TOPIC_ARN,
+        Subject: `Portfolio contact from ${firstName} ${lastName}`,
+        Message: lines,
+      }));
+
+      contactRateLimit.set(ip, Date.now());
+
+      return jsonResponse(200, { success: true });
     }
 
     // ── GET /github-contributions ─────────────────────────────

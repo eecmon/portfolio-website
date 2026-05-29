@@ -8,6 +8,7 @@ import { ImageSection } from "./ImageSection";
 import { SkillsSection } from "./SkillsSection";
 import { InsightsSection } from "./InsightsSection";
 import { GitHubSection } from "./GitHubSection";
+import { ContactSection } from "./ContactSection";
 
 export const sectionRegistry: Partial<Record<SectionType, ComponentType<SectionProps>>> = {
   timeline: TimelineSection,
@@ -16,4 +17,5 @@ export const sectionRegistry: Partial<Record<SectionType, ComponentType<SectionP
   skills: SkillsSection,
   insights: InsightsSection,
   github: GitHubSection,
+  contact: ContactSection,
 };
