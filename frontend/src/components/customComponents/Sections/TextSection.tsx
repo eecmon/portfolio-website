@@ -6,7 +6,15 @@ export interface SectionProps {
   multilanguage?: boolean;
 }
 
-export function TextSection({ section }: SectionProps) {
+export function TextSection({ section, defaultLanguage = "en" }: SectionProps) {
+  const lang = defaultLanguage;
+  const title =
+    (lang === "de" ? section.title_de : section.title_en) || section.title;
+  const subtext =
+    (lang === "de" ? section.subtext_de : section.subtext_en) || section.subtext;
+  const description =
+    (lang === "de" ? section.description_de : section.description_en) || section.description;
+
   return (
     <section className="mx-auto max-w-5xl px-6 py-14">
       {/* Header */}
@@ -24,22 +32,20 @@ export function TextSection({ section }: SectionProps) {
             className="text-2xl font-bold tracking-tight"
             style={{ color: "var(--color-text)" }}
           >
-            {section.title}
+            {title}
           </h2>
-          {section.subtext && (
+          {subtext && (
             <p className="mt-0.5 text-sm font-medium" style={{ color: "var(--color-primary)" }}>
-              {section.subtext}
+              {subtext}
             </p>
           )}
         </div>
       </div>
 
       {/* Body */}
-      {section.description && (
-        <p
-          className="max-w-2xl whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground"
-        >
-          {section.description}
+      {description && (
+        <p className="max-w-2xl whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
+          {description}
         </p>
       )}
     </section>

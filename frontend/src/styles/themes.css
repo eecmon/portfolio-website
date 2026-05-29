@@ -22,6 +22,8 @@
   color: var(--color-text);
 }
 
+/* Intro animation: themes/modern-1/IntroOverlay.tsx + intro.css */
+
 /* ─── Base ──────────────────────────────────────────────────────── */
 
 body {

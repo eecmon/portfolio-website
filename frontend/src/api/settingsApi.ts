@@ -5,6 +5,7 @@ export interface Settings {
   primaryColor: string;
   secondaryColor: string;
   textColor: string;
+  fontFamily: string;
   multilanguage: boolean;
   defaultLanguage: string;
 }
@@ -16,6 +17,7 @@ const defaultSettings: Settings = {
   primaryColor: "#2563eb",
   secondaryColor: "#64748b",
   textColor: "#111827",
+  fontFamily: "geist",
   multilanguage: false,
   defaultLanguage: "en",
 };
@@ -23,7 +25,7 @@ const defaultSettings: Settings = {
 export async function getSettings(): Promise<Settings> {
   if (isLocalMode()) {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as Settings) : { ...defaultSettings };
+    return raw ? { ...defaultSettings, ...(JSON.parse(raw) as Partial<Settings>) } : { ...defaultSettings };
   }
 
   const res = await fetch("/api/settings");

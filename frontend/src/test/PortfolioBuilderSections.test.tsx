@@ -4,7 +4,10 @@ import { PortfolioBuilder } from "@/components/customComponents/Builder/Portfoli
 import type { Content } from "@/api/contentApi";
 import type { Settings } from "@/api/settingsApi";
 
-vi.mock("@/lib/applySettings", () => ({ applySettings: vi.fn() }));
+vi.mock("@/lib/applySettings", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/applySettings")>();
+  return { ...actual, applySettings: vi.fn() };
+});
 vi.mock("@/api/uploadApi", () => ({ uploadFile: vi.fn() }));
 // embla stub — stable api reference prevents infinite setApi loop
 vi.mock("embla-carousel-react", () => {
@@ -17,6 +20,7 @@ const baseSettings: Settings = {
   primaryColor: "#2563eb",
   secondaryColor: "#64748b",
   textColor: "#111827",
+  fontFamily: "geist",
   multilanguage: false,
   defaultLanguage: "en",
 };

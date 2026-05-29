@@ -3,11 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 import { uploadFile } from "@/api/uploadApi";
 import type { PortfolioSection } from "@/api/contentApi";
 import { t } from "@/i18n";
 
-interface TextSectionEditorProps {
+interface ContactSectionEditorProps {
   section: PortfolioSection;
   lang?: string;
   showEn?: boolean;
@@ -15,13 +16,13 @@ interface TextSectionEditorProps {
   onUpdate: (patch: Partial<PortfolioSection>) => void;
 }
 
-export function TextSectionEditor({
+export function ContactSectionEditor({
   section,
   lang = "en",
   showEn = true,
   showDe = false,
   onUpdate,
-}: TextSectionEditorProps) {
+}: ContactSectionEditorProps) {
   const iconInputRef = useRef<HTMLInputElement>(null);
   const [uploadingIcon, setUploadingIcon] = useState(false);
   const multilanguage = showEn && showDe;
@@ -42,21 +43,24 @@ export function TextSectionEditor({
       {multilanguage ? (
         <>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor={`text-title-en-${section.id}`}>{t(lang, "section.titleEn")}</Label>
-            <Input id={`text-title-en-${section.id}`} value={section.title_en ?? ""}
-              onChange={(e) => onUpdate({ title_en: e.target.value })} placeholder="Section title (EN)" />
+            <Label>{t(lang, "section.titleEn")}</Label>
+            <Input value={section.title_en ?? ""}
+              onChange={(e) => onUpdate({ title_en: e.target.value })}
+              placeholder="Section title (EN)" />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor={`text-title-de-${section.id}`}>{t(lang, "section.titleDe")}</Label>
-            <Input id={`text-title-de-${section.id}`} value={section.title_de ?? ""}
-              onChange={(e) => onUpdate({ title_de: e.target.value })} placeholder="Abschnittstitel (DE)" />
+            <Label>{t(lang, "section.titleDe")}</Label>
+            <Input value={section.title_de ?? ""}
+              onChange={(e) => onUpdate({ title_de: e.target.value })}
+              placeholder="Abschnittstitel (DE)" />
           </div>
         </>
       ) : (
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor={`text-title-${section.id}`}>{t(lang, "section.title")}</Label>
-          <Input id={`text-title-${section.id}`} value={section.title}
-            onChange={(e) => onUpdate({ title: e.target.value })} placeholder="Section title" />
+          <Label>{t(lang, "section.title")}</Label>
+          <Input value={section.title}
+            onChange={(e) => onUpdate({ title: e.target.value })}
+            placeholder="Section title" />
         </div>
       )}
 
@@ -64,46 +68,49 @@ export function TextSectionEditor({
       {multilanguage ? (
         <>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor={`text-subtext-en-${section.id}`}>{t(lang, "section.subtextEn")}</Label>
-            <Input id={`text-subtext-en-${section.id}`} value={section.subtext_en ?? ""}
-              onChange={(e) => onUpdate({ subtext_en: e.target.value })} placeholder="Short subtitle (EN)" />
+            <Label>{t(lang, "section.subtextEn")}</Label>
+            <Input value={section.subtext_en ?? ""}
+              onChange={(e) => onUpdate({ subtext_en: e.target.value })}
+              placeholder="Short subtitle (EN)" />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor={`text-subtext-de-${section.id}`}>{t(lang, "section.subtextDe")}</Label>
-            <Input id={`text-subtext-de-${section.id}`} value={section.subtext_de ?? ""}
-              onChange={(e) => onUpdate({ subtext_de: e.target.value })} placeholder="Untertitel (DE)" />
+            <Label>{t(lang, "section.subtextDe")}</Label>
+            <Input value={section.subtext_de ?? ""}
+              onChange={(e) => onUpdate({ subtext_de: e.target.value })}
+              placeholder="Untertitel (DE)" />
           </div>
         </>
       ) : (
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor={`text-subtext-${section.id}`}>{t(lang, "section.subtext")}</Label>
-          <Input id={`text-subtext-${section.id}`} value={section.subtext ?? ""}
-            onChange={(e) => onUpdate({ subtext: e.target.value })} placeholder="Short subtitle (optional)" />
+          <Label>{t(lang, "section.subtext")}</Label>
+          <Input value={section.subtext ?? ""}
+            onChange={(e) => onUpdate({ subtext: e.target.value })}
+            placeholder="Short subtitle (optional)" />
         </div>
       )}
 
-      {/* Description / body */}
+      {/* Description */}
       {multilanguage ? (
         <>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor={`text-desc-en-${section.id}`}>{t(lang, "section.descriptionEn")}</Label>
-            <Textarea id={`text-desc-en-${section.id}`} value={section.description_en ?? ""}
+            <Label>{t(lang, "section.descriptionEn")}</Label>
+            <Textarea value={section.description_en ?? ""}
               onChange={(e) => onUpdate({ description_en: e.target.value })}
-              placeholder="Write your content… (EN)" className="min-h-[120px]" />
+              placeholder="Introductory paragraph (EN)" className="min-h-[60px]" />
           </div>
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor={`text-desc-de-${section.id}`}>{t(lang, "section.descriptionDe")}</Label>
-            <Textarea id={`text-desc-de-${section.id}`} value={section.description_de ?? ""}
+            <Label>{t(lang, "section.descriptionDe")}</Label>
+            <Textarea value={section.description_de ?? ""}
               onChange={(e) => onUpdate({ description_de: e.target.value })}
-              placeholder="Inhalt schreiben… (DE)" className="min-h-[120px]" />
+              placeholder="Einleitungsabsatz (DE)" className="min-h-[60px]" />
           </div>
         </>
       ) : (
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor={`text-description-${section.id}`}>{t(lang, "section.description")}</Label>
-          <Textarea id={`text-description-${section.id}`} value={section.description ?? ""}
+          <Label>{t(lang, "section.description")}</Label>
+          <Textarea value={section.description ?? ""}
             onChange={(e) => onUpdate({ description: e.target.value })}
-            placeholder="Write your content…" className="min-h-[120px]" />
+            placeholder="Introductory paragraph (optional)" className="min-h-[60px]" />
         </div>
       )}
 
@@ -137,6 +144,12 @@ export function TextSectionEditor({
           )}
         </div>
       </div>
+
+      <Separator />
+
+      <p className="text-xs text-muted-foreground rounded-lg border border-border bg-muted/40 px-3 py-2">
+        {t(lang, "contactSection.editorNote")}
+      </p>
     </div>
   );
 }

@@ -14,19 +14,28 @@ export interface HeroContent {
   summary_de: string;
   summary_en: string;
   profile_image: string;
+  profile_image_position?: string;
+  profile_image_zoom?: number;
+  navLabel?: string;
+  navLabel_en?: string;
+  navLabel_de?: string;
   links: HeroLink[];
 }
 
 // ── Portfolio Sections ────────────────────────────────────────────
 
-export type SectionType = "timeline" | "text" | "image" | "skills" | "insights";
+export type SectionType = "timeline" | "text" | "image" | "skills" | "insights" | "github" | "contact";
 
 export interface TimelineItem {
   id: string;
   order: number;
   date: string;
   title: string;
+  title_en?: string;
+  title_de?: string;
   description?: string;
+  description_en?: string;
+  description_de?: string;
 }
 
 // Image section
@@ -34,6 +43,8 @@ export interface SectionImage {
   id: string;
   imageUrl: string;
   caption?: string;
+  caption_en?: string;
+  caption_de?: string;
   order: number;
 }
 
@@ -55,7 +66,11 @@ export interface InsightDetailBlock {
   id: string;
   order: number;
   header?: string;
+  header_en?: string;
+  header_de?: string;
   description?: string;
+  description_en?: string;
+  description_de?: string;
   imageUrl?: string;
 }
 
@@ -63,7 +78,11 @@ export interface InsightItem {
   id: string;
   order: number;
   name: string;
+  name_en?: string;
+  name_de?: string;
   shortDescription: string;
+  shortDescription_en?: string;
+  shortDescription_de?: string;
   detailBlocks: InsightDetailBlock[];
 }
 
@@ -71,9 +90,18 @@ export interface PortfolioSection {
   id: string;
   type: SectionType;
   order: number;
+  navLabel?: string;
+  navLabel_en?: string;
+  navLabel_de?: string;
   title: string;
+  title_en?: string;
+  title_de?: string;
   subtext?: string;
+  subtext_en?: string;
+  subtext_de?: string;
   description?: string;
+  description_en?: string;
+  description_de?: string;
   iconUrl?: string;
   data: Record<string, unknown>;
 }

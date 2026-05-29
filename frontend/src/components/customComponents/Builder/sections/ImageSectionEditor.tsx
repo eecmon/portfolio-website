@@ -17,13 +17,14 @@ interface ImageRowProps {
   isFirst: boolean;
   isLast: boolean;
   lang: string;
+  multilanguage: boolean;
   onUpdate: (patch: Partial<SectionImage>) => void;
   onRemove: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
 }
 
-function ImageRow({ image, isFirst, isLast, lang, onUpdate, onRemove, onMoveUp, onMoveDown }: ImageRowProps) {
+function ImageRow({ image, isFirst, isLast, lang, multilanguage, onUpdate, onRemove, onMoveUp, onMoveDown }: ImageRowProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
 
@@ -71,8 +72,18 @@ function ImageRow({ image, isFirst, isLast, lang, onUpdate, onRemove, onMoveUp, 
             ? t(lang, "common.changeImage")
             : t(lang, "common.uploadImage")}
       </Button>
-      <Input placeholder={t(lang, "imageSection.caption")} value={image.caption ?? ""}
-        onChange={(e) => onUpdate({ caption: e.target.value })} />
+
+      {multilanguage ? (
+        <>
+          <Input placeholder={t(lang, "imageSection.captionEn")} value={image.caption_en ?? ""}
+            onChange={(e) => onUpdate({ caption_en: e.target.value })} />
+          <Input placeholder={t(lang, "imageSection.captionDe")} value={image.caption_de ?? ""}
+            onChange={(e) => onUpdate({ caption_de: e.target.value })} />
+        </>
+      ) : (
+        <Input placeholder={t(lang, "imageSection.caption")} value={image.caption ?? ""}
+          onChange={(e) => onUpdate({ caption: e.target.value })} />
+      )}
     </div>
   );
 }
@@ -80,12 +91,21 @@ function ImageRow({ image, isFirst, isLast, lang, onUpdate, onRemove, onMoveUp, 
 interface ImageSectionEditorProps {
   section: PortfolioSection;
   lang?: string;
+  showEn?: boolean;
+  showDe?: boolean;
   onUpdate: (patch: Partial<PortfolioSection>) => void;
 }
 
-export function ImageSectionEditor({ section, lang = "en", onUpdate }: ImageSectionEditorProps) {
+export function ImageSectionEditor({
+  section,
+  lang = "en",
+  showEn = true,
+  showDe = false,
+  onUpdate,
+}: ImageSectionEditorProps) {
   const iconInputRef = useRef<HTMLInputElement>(null);
   const [uploadingIcon, setUploadingIcon] = useState(false);
+  const multilanguage = showEn && showDe;
 
   const images = [...((section.data.images as SectionImage[] | undefined) ?? [])].sort(
     (a, b) => a.order - b.order
@@ -94,20 +114,16 @@ export function ImageSectionEditor({ section, lang = "en", onUpdate }: ImageSect
   function patchImages(next: SectionImage[]) {
     onUpdate({ data: { ...section.data, images: next } });
   }
-
   function addImage() {
     const maxOrder = images.reduce((m, i) => Math.max(m, i.order), -1);
     patchImages([...images, { id: uid(), imageUrl: "", caption: "", order: maxOrder + 1 }]);
   }
-
   function updateImage(id: string, patch: Partial<SectionImage>) {
     patchImages(images.map((img) => (img.id === id ? { ...img, ...patch } : img)));
   }
-
   function removeImage(id: string) {
     patchImages(images.filter((img) => img.id !== id));
   }
-
   function moveImage(id: string, dir: "up" | "down") {
     const idx = images.findIndex((img) => img.id === id);
     const swapIdx = dir === "up" ? idx - 1 : idx + 1;
@@ -119,7 +135,6 @@ export function ImageSectionEditor({ section, lang = "en", onUpdate }: ImageSect
     next[swapIdx] = { ...next[swapIdx], order: aOrder };
     patchImages(next);
   }
-
   async function handleIconUpload(file: File) {
     setUploadingIcon(true);
     try {
@@ -132,25 +147,76 @@ export function ImageSectionEditor({ section, lang = "en", onUpdate }: ImageSect
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor={`img-title-${section.id}`}>{t(lang, "section.title")}</Label>
-        <Input id={`img-title-${section.id}`} value={section.title}
-          onChange={(e) => onUpdate({ title: e.target.value })} placeholder="Section title" />
-      </div>
+      {/* Title */}
+      {multilanguage ? (
+        <>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={`img-title-en-${section.id}`}>{t(lang, "section.titleEn")}</Label>
+            <Input id={`img-title-en-${section.id}`} value={section.title_en ?? ""}
+              onChange={(e) => onUpdate({ title_en: e.target.value })} placeholder="Section title (EN)" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={`img-title-de-${section.id}`}>{t(lang, "section.titleDe")}</Label>
+            <Input id={`img-title-de-${section.id}`} value={section.title_de ?? ""}
+              onChange={(e) => onUpdate({ title_de: e.target.value })} placeholder="Abschnittstitel (DE)" />
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={`img-title-${section.id}`}>{t(lang, "section.title")}</Label>
+          <Input id={`img-title-${section.id}`} value={section.title}
+            onChange={(e) => onUpdate({ title: e.target.value })} placeholder="Section title" />
+        </div>
+      )}
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor={`img-subtext-${section.id}`}>{t(lang, "section.subtext")}</Label>
-        <Input id={`img-subtext-${section.id}`} value={section.subtext ?? ""}
-          onChange={(e) => onUpdate({ subtext: e.target.value })} placeholder="Short subtitle (optional)" />
-      </div>
+      {/* Subtext */}
+      {multilanguage ? (
+        <>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={`img-subtext-en-${section.id}`}>{t(lang, "section.subtextEn")}</Label>
+            <Input id={`img-subtext-en-${section.id}`} value={section.subtext_en ?? ""}
+              onChange={(e) => onUpdate({ subtext_en: e.target.value })} placeholder="Short subtitle (EN)" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={`img-subtext-de-${section.id}`}>{t(lang, "section.subtextDe")}</Label>
+            <Input id={`img-subtext-de-${section.id}`} value={section.subtext_de ?? ""}
+              onChange={(e) => onUpdate({ subtext_de: e.target.value })} placeholder="Untertitel (DE)" />
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={`img-subtext-${section.id}`}>{t(lang, "section.subtext")}</Label>
+          <Input id={`img-subtext-${section.id}`} value={section.subtext ?? ""}
+            onChange={(e) => onUpdate({ subtext: e.target.value })} placeholder="Short subtitle (optional)" />
+        </div>
+      )}
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor={`img-desc-${section.id}`}>{t(lang, "section.description")}</Label>
-        <Textarea id={`img-desc-${section.id}`} value={section.description ?? ""}
-          onChange={(e) => onUpdate({ description: e.target.value })}
-          placeholder="Shown left of carousel (optional)" className="min-h-[80px]" />
-      </div>
+      {/* Description */}
+      {multilanguage ? (
+        <>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={`img-desc-en-${section.id}`}>{t(lang, "section.descriptionEn")}</Label>
+            <Textarea id={`img-desc-en-${section.id}`} value={section.description_en ?? ""}
+              onChange={(e) => onUpdate({ description_en: e.target.value })}
+              placeholder="Shown left of carousel (EN)" className="min-h-[80px]" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={`img-desc-de-${section.id}`}>{t(lang, "section.descriptionDe")}</Label>
+            <Textarea id={`img-desc-de-${section.id}`} value={section.description_de ?? ""}
+              onChange={(e) => onUpdate({ description_de: e.target.value })}
+              placeholder="Links neben Karussell (DE)" className="min-h-[80px]" />
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={`img-desc-${section.id}`}>{t(lang, "section.description")}</Label>
+          <Textarea id={`img-desc-${section.id}`} value={section.description ?? ""}
+            onChange={(e) => onUpdate({ description: e.target.value })}
+            placeholder="Shown left of carousel (optional)" className="min-h-[80px]" />
+        </div>
+      )}
 
+      {/* Icon */}
       <div className="flex flex-col gap-1.5">
         <Label>{t(lang, "section.icon")}</Label>
         <div className="flex items-center gap-2">
@@ -183,6 +249,7 @@ export function ImageSectionEditor({ section, lang = "en", onUpdate }: ImageSect
 
       <Separator />
 
+      {/* Images */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between">
           <Label>{t(lang, "sectionType.image")}</Label>
@@ -194,7 +261,7 @@ export function ImageSectionEditor({ section, lang = "en", onUpdate }: ImageSect
           <p className="text-xs text-muted-foreground">{t(lang, "imageSection.noImages")}</p>
         )}
         {images.map((img, idx) => (
-          <ImageRow key={img.id} image={img} lang={lang}
+          <ImageRow key={img.id} image={img} lang={lang} multilanguage={multilanguage}
             isFirst={idx === 0} isLast={idx === images.length - 1}
             onUpdate={(patch) => updateImage(img.id, patch)}
             onRemove={() => removeImage(img.id)}

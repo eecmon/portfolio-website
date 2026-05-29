@@ -8,13 +8,14 @@ export interface SectionProps {
   multilanguage?: boolean;
 }
 
-export function SkillsSection({ section }: SectionProps) {
+export function SkillsSection({ section, defaultLanguage = "en" }: SectionProps) {
+  const lang = defaultLanguage;
   const groups = [...((section.data.groups as SkillGroup[] | undefined) ?? [])].sort(
     (a, b) => a.order - b.order
   );
 
   return (
-    <SectionShell section={section}>
+    <SectionShell section={section} lang={lang}>
       {groups.length === 0 ? (
         <p className="text-sm text-muted-foreground">No skills added yet.</p>
       ) : (

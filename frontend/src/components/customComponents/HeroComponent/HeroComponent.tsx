@@ -1,5 +1,6 @@
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { resolveNavAnchor } from "@/lib/navLabel";
 import type { HeroContent } from "@/api/contentApi";
 
 interface HeroComponentProps {
@@ -12,15 +13,36 @@ function pickLang(lang: string, de: string, en: string): string {
   return lang === "de" ? de : en;
 }
 
-function ProfileImage({ src, alt }: { src: string; alt: string }) {
+function parseTranslation(pos?: string): [number, number] {
+  if (!pos) return [0, 0];
+  const parts = pos.trim().split(/\s+/);
+  const x = parseFloat(parts[0]);
+  const y = parseFloat(parts[1]);
+  return [isNaN(x) ? 0 : x, isNaN(y) ? 0 : y];
+}
+
+function ProfileImage({
+  src,
+  alt,
+  position,
+  zoom,
+}: {
+  src: string;
+  alt: string;
+  position?: string;
+  zoom?: number;
+}) {
+  const [tx, ty] = parseTranslation(position);
+  const scale = zoom ?? 1;
   return (
     <div className="shrink-0">
-      <div className="size-32 overflow-hidden rounded-2xl ring-2 ring-border sm:size-40">
+      <div className="size-32 overflow-hidden rounded-full ring-2 ring-border sm:size-40">
         <img
           src={src}
           alt={alt}
-          className="size-full object-cover"
+          className="size-full object-cover origin-center"
           loading="lazy"
+          style={{ transform: `scale(${scale}) translate(${tx}%, ${ty}%)` }}
         />
       </div>
     </div>
@@ -31,7 +53,7 @@ function ProfilePlaceholder({ initials }: { initials: string }) {
   return (
     <div className="shrink-0">
       <div
-        className="flex size-32 items-center justify-center rounded-2xl text-3xl font-semibold text-white sm:size-40"
+        className="flex size-32 items-center justify-center rounded-full text-3xl font-semibold text-white sm:size-40"
         style={{ backgroundColor: "var(--color-primary)" }}
       >
         {initials}
@@ -75,8 +97,12 @@ export function HeroComponent({
     summary_de,
     summary_en,
     profile_image,
+    profile_image_position,
+    profile_image_zoom,
     links,
   } = content;
+
+  const anchorId = resolveNavAnchor(content);
 
   const occupation = pickLang(lang, occupation_de, occupation_en);
   const summary = pickLang(lang, summary_de, summary_en);
@@ -88,7 +114,7 @@ export function HeroComponent({
 
   if (!hasContent) {
     return (
-      <section className="mx-auto max-w-5xl px-6 py-20 sm:py-28">
+      <section id={anchorId} className="mx-auto max-w-5xl px-6 pt-24 pb-14 sm:pt-28 scroll-mt-20">
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border py-20 text-center">
           <p className="text-sm font-medium" style={{ color: "var(--color-primary)" }}>
             Your portfolio is empty
@@ -102,11 +128,11 @@ export function HeroComponent({
   }
 
   return (
-    <section className="mx-auto max-w-5xl px-6 py-20 sm:py-28">
+    <section id={anchorId} className="mx-auto max-w-5xl px-6 pt-24 pb-14 sm:pt-28 scroll-mt-20">
       <div className="flex flex-col items-start gap-10 sm:flex-row sm:items-start sm:gap-14">
         {/* Avatar */}
         {profile_image ? (
-          <ProfileImage src={profile_image} alt={fullName || "Profile photo"} />
+          <ProfileImage src={profile_image} alt={fullName || "Profile photo"} position={profile_image_position} zoom={profile_image_zoom} />
         ) : initials ? (
           <ProfilePlaceholder initials={initials} />
         ) : null}

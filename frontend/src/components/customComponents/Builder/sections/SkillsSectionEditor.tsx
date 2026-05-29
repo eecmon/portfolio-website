@@ -80,10 +80,13 @@ function GroupEditor({ group, isFirst, isLast, lang, onUpdate, onRemove, onMoveU
 interface SkillsSectionEditorProps {
   section: PortfolioSection;
   lang?: string;
+  showEn?: boolean;
+  showDe?: boolean;
   onUpdate: (patch: Partial<PortfolioSection>) => void;
 }
 
-export function SkillsSectionEditor({ section, lang = "en", onUpdate }: SkillsSectionEditorProps) {
+export function SkillsSectionEditor({ section, lang = "en", showEn = true, showDe = false, onUpdate }: SkillsSectionEditorProps) {
+  const multilanguage = showEn && showDe;
   const iconInputRef = useRef<HTMLInputElement>(null);
   const [uploadingIcon, setUploadingIcon] = useState(false);
 
@@ -132,17 +135,49 @@ export function SkillsSectionEditor({ section, lang = "en", onUpdate }: SkillsSe
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor={`skills-title-${section.id}`}>{t(lang, "section.title")}</Label>
-        <Input id={`skills-title-${section.id}`} value={section.title}
-          onChange={(e) => onUpdate({ title: e.target.value })} placeholder="Section title" />
-      </div>
+      {/* Title */}
+      {multilanguage ? (
+        <>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={`skills-title-en-${section.id}`}>{t(lang, "section.titleEn")}</Label>
+            <Input id={`skills-title-en-${section.id}`} value={section.title_en ?? ""}
+              onChange={(e) => onUpdate({ title_en: e.target.value })} placeholder="Section title (EN)" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={`skills-title-de-${section.id}`}>{t(lang, "section.titleDe")}</Label>
+            <Input id={`skills-title-de-${section.id}`} value={section.title_de ?? ""}
+              onChange={(e) => onUpdate({ title_de: e.target.value })} placeholder="Abschnittstitel (DE)" />
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={`skills-title-${section.id}`}>{t(lang, "section.title")}</Label>
+          <Input id={`skills-title-${section.id}`} value={section.title}
+            onChange={(e) => onUpdate({ title: e.target.value })} placeholder="Section title" />
+        </div>
+      )}
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor={`skills-subtext-${section.id}`}>{t(lang, "section.subtext")}</Label>
-        <Input id={`skills-subtext-${section.id}`} value={section.subtext ?? ""}
-          onChange={(e) => onUpdate({ subtext: e.target.value })} placeholder="Short subtitle (optional)" />
-      </div>
+      {/* Subtext */}
+      {multilanguage ? (
+        <>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={`skills-subtext-en-${section.id}`}>{t(lang, "section.subtextEn")}</Label>
+            <Input id={`skills-subtext-en-${section.id}`} value={section.subtext_en ?? ""}
+              onChange={(e) => onUpdate({ subtext_en: e.target.value })} placeholder="Short subtitle (EN)" />
+          </div>
+          <div className="flex flex-col gap-1.5">
+            <Label htmlFor={`skills-subtext-de-${section.id}`}>{t(lang, "section.subtextDe")}</Label>
+            <Input id={`skills-subtext-de-${section.id}`} value={section.subtext_de ?? ""}
+              onChange={(e) => onUpdate({ subtext_de: e.target.value })} placeholder="Untertitel (DE)" />
+          </div>
+        </>
+      ) : (
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={`skills-subtext-${section.id}`}>{t(lang, "section.subtext")}</Label>
+          <Input id={`skills-subtext-${section.id}`} value={section.subtext ?? ""}
+            onChange={(e) => onUpdate({ subtext: e.target.value })} placeholder="Short subtitle (optional)" />
+        </div>
+      )}
 
       <div className="flex flex-col gap-1.5">
         <Label>{t(lang, "section.icon")}</Label>

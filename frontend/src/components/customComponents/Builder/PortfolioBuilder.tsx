@@ -6,18 +6,164 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
+import { NavLabelFields } from "./NavLabelFields";
 import { SettingsPanel } from "./SettingsPanel";
 import { SectionEditor } from "./SectionEditor";
 
 import { NavBar } from "@/components/customComponents/NavBar";
 import { HeroComponent } from "@/components/customComponents/HeroComponent";
 import { SectionRenderer } from "@/components/customComponents/Sections/SectionRenderer";
+import { Footer } from "@/components/customComponents/Footer";
 
 import { uploadFile } from "@/api/uploadApi";
 import { applySettings } from "@/lib/applySettings";
+import { buildNavItems } from "@/lib/navLabel";
 import type { Settings } from "@/api/settingsApi";
 import type { Content, HeroContent, HeroLink, PortfolioSection, SectionType } from "@/api/contentApi";
+import type { NavItem } from "@/components/customComponents/NavBar/NavBar";
 import { t } from "@/i18n";
+
+// ── Profile image editor (placeholder + drag-reposition + hover-delete) ──
+
+function parsePosition(pos: string): [number, number] {
+  const parts = pos.trim().split(/\s+/);
+  const x = parseFloat(parts[0]);
+  const y = parseFloat(parts[1]);
+  return [isNaN(x) ? 0 : x, isNaN(y) ? 0 : y];
+}
+
+function ProfileImageEditor({
+  src,
+  position,
+  zoom,
+  isUploading,
+  onPickFile,
+  onPositionChange,
+  onZoomChange,
+  onDelete,
+}: {
+  src: string;
+  position: string;
+  zoom: number;
+  isUploading: boolean;
+  onPickFile: () => void;
+  onPositionChange: (pos: string) => void;
+  onZoomChange: (zoom: number) => void;
+  onDelete: () => void;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const drag = useRef<{ startX: number; startY: number; px: number; py: number } | null>(null);
+
+  function onPointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    if (zoom <= 1) return;
+    e.preventDefault();
+    const [px, py] = parsePosition(position);
+    drag.current = { startX: e.clientX, startY: e.clientY, px, py };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
+
+  function onPointerMove(e: React.PointerEvent<HTMLDivElement>) {
+    if (!drag.current || !containerRef.current) return;
+    const { width, height } = containerRef.current.getBoundingClientRect();
+    const dx = e.clientX - drag.current.startX;
+    const dy = e.clientY - drag.current.startY;
+    // Max translation (%) to keep image covering the container at current zoom
+    const maxT = (50 * (zoom - 1)) / zoom;
+    const newX = Math.round(Math.max(-maxT, Math.min(maxT, drag.current.px - (dx / width) * 100 / zoom)) * 10) / 10;
+    const newY = Math.round(Math.max(-maxT, Math.min(maxT, drag.current.py - (dy / height) * 100 / zoom)) * 10) / 10;
+    onPositionChange(`${newX} ${newY}`);
+  }
+
+  function onPointerUp() {
+    drag.current = null;
+  }
+
+  function handleZoomChange(newZoom: number) {
+    onZoomChange(newZoom);
+    // Clamp existing translation so image stays covering the container
+    const [tx, ty] = parsePosition(position);
+    const maxT = (50 * (newZoom - 1)) / newZoom;
+    const cx = Math.max(-maxT, Math.min(maxT, tx));
+    const cy = Math.max(-maxT, Math.min(maxT, ty));
+    if (cx !== tx || cy !== ty) onPositionChange(`${cx} ${cy}`);
+  }
+
+  if (!src) {
+    return (
+      <button
+        type="button"
+        disabled={isUploading}
+        onClick={onPickFile}
+        className="flex size-28 shrink-0 flex-col items-center justify-center gap-1 rounded-full border-2 border-dashed border-border text-muted-foreground transition-colors hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] disabled:opacity-50"
+      >
+        {isUploading ? (
+          <span className="text-[10px]">Uploading…</span>
+        ) : (
+          <>
+            <span className="text-2xl leading-none">+</span>
+            <span className="text-[10px]">Photo</span>
+          </>
+        )}
+      </button>
+    );
+  }
+
+  const [tx, ty] = parsePosition(position);
+
+  return (
+    <div className="flex flex-col items-start gap-1.5">
+      <div
+        ref={containerRef}
+        className={[
+          "group relative size-28 shrink-0 select-none overflow-hidden rounded-full ring-2 ring-border",
+          zoom > 1 ? "cursor-grab active:cursor-grabbing" : "cursor-default",
+        ].join(" ")}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+      >
+        <img
+          src={src}
+          alt=""
+          draggable={false}
+          className="pointer-events-none size-full object-cover origin-center"
+          style={{ transform: `scale(${zoom}) translate(${tx}%, ${ty}%)` }}
+        />
+        {/* Hover overlay with delete */}
+        <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+          <button
+            type="button"
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={(e) => { e.stopPropagation(); onDelete(); }}
+            className="flex size-8 items-center justify-center rounded-full bg-white/90 text-sm text-destructive shadow transition-colors hover:bg-white"
+          >
+            ✕
+          </button>
+        </div>
+      </div>
+
+      {/* Zoom slider */}
+      <div className="flex w-28 items-center gap-1.5">
+        <span className="text-[11px] font-medium text-muted-foreground">−</span>
+        <input
+          type="range"
+          min="1"
+          max="3"
+          step="0.05"
+          value={zoom}
+          onChange={(e) => handleZoomChange(parseFloat(e.target.value))}
+          className="h-1 w-full cursor-pointer accent-[var(--color-primary)]"
+        />
+        <span className="text-[11px] font-medium text-muted-foreground">+</span>
+      </div>
+
+      <p className="text-[10px] text-muted-foreground">
+        {zoom > 1 ? "Drag to reposition" : "Zoom in to reposition"}
+      </p>
+    </div>
+  );
+}
 
 // ── Helpers ───────────────────────────────────────────────────────
 
@@ -32,6 +178,8 @@ function sectionTypeLabels(lang: string): Record<SectionType, string> {
     image: t(lang, "sectionType.image"),
     skills: t(lang, "sectionType.skills"),
     insights: t(lang, "sectionType.insights"),
+    github: t(lang, "sectionType.github"),
+    contact: t(lang, "sectionType.contact"),
   };
 }
 
@@ -276,6 +424,16 @@ export function PortfolioBuilder({
   const showDe = settings.multilanguage || lang === "de";
   const typeLabels = sectionTypeLabels(lang);
 
+  const githubAlreadyExists  = content.sections.some((s) => s.type === "github");
+  const contactAlreadyExists = content.sections.some((s) => s.type === "contact");
+  const availableTypes = (Object.keys(typeLabels) as SectionType[]).filter((type) => {
+    if (type === "github"  && githubAlreadyExists)  return false;
+    if (type === "contact" && contactAlreadyExists) return false;
+    return true;
+  });
+
+  const previewNavItems: NavItem[] = buildNavItems(content.hero, sortedSections, previewLang);
+
   return (
     <div className="flex h-screen overflow-hidden bg-background">
       {/* ── Left panel: editor forms ──────────────────────────── */}
@@ -300,31 +458,67 @@ export function PortfolioBuilder({
           {/* ── 1. Global Settings ───────────────────────── */}
           <SettingsPanel settings={settings} onChange={patchSettings} />
 
+          <Separator />
+
           {/* ── 2. Hero Content ──────────────────────────── */}
-          <Card>
+          <div className="relative mt-2">
+            <span
+              className="absolute left-4 top-0 z-10 -translate-y-1/2 rounded-full px-2.5 py-0.5 text-xs font-bold text-white"
+              style={{ backgroundColor: "var(--color-primary)" }}
+            >
+              Block 1
+            </span>
+            <Card className="ring-2 ring-foreground/10">
             <CardHeader>
               <CardTitle>{t(lang, "hero.card")}</CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col gap-4">
-              {/* Name */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="firstName">{t(lang, "hero.firstName")}</Label>
-                  <Input
-                    id="firstName"
-                    value={content.hero.firstName}
-                    onChange={(e) => patchHero({ firstName: e.target.value })}
-                    placeholder="Mantas"
-                  />
-                </div>
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="lastName">{t(lang, "hero.lastName")}</Label>
-                  <Input
-                    id="lastName"
-                    value={content.hero.lastName}
-                    onChange={(e) => patchHero({ lastName: e.target.value })}
-                    placeholder="Versus"
-                  />
+              {/* Hidden file input for profile image */}
+              <input
+                ref={profileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) void handleProfileUpload(file);
+                  e.target.value = "";
+                }}
+              />
+
+              {/* Photo + Name */}
+              <div className="flex items-start gap-4">
+                {/* Left: profile image */}
+                <ProfileImageEditor
+                  src={content.hero.profile_image}
+                  position={content.hero.profile_image_position || "0 0"}
+                  zoom={content.hero.profile_image_zoom ?? 1}
+                  isUploading={isUploadingImage}
+                  onPickFile={() => profileInputRef.current?.click()}
+                  onPositionChange={(pos) => patchHero({ profile_image_position: pos })}
+                  onZoomChange={(z) => patchHero({ profile_image_zoom: z })}
+                  onDelete={() => patchHero({ profile_image: "", profile_image_position: "0 0", profile_image_zoom: 1 })}
+                />
+                {/* Right: first + last name stacked */}
+                <div className="flex flex-1 flex-col justify-between gap-3 self-stretch">
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="firstName">{t(lang, "hero.firstName")}</Label>
+                    <Input
+                      id="firstName"
+                      value={content.hero.firstName}
+                      onChange={(e) => patchHero({ firstName: e.target.value })}
+                      placeholder="eecmon"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="lastName">{t(lang, "hero.lastName")}</Label>
+                    <Input
+                      id="lastName"
+                      value={content.hero.lastName}
+                      onChange={(e) => patchHero({ lastName: e.target.value })}
+                      placeholder="eecmon"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -380,42 +574,6 @@ export function PortfolioBuilder({
                 </div>
               )}
 
-              <Separator />
-
-              {/* Profile Image */}
-              <div className="flex flex-col gap-2">
-                <Label>{t(lang, "hero.profileImage")}</Label>
-                {content.hero.profile_image && (
-                  <img
-                    src={content.hero.profile_image}
-                    alt="Profile preview"
-                    className="h-20 w-20 rounded-xl object-cover"
-                  />
-                )}
-                <input
-                  ref={profileInputRef}
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) void handleProfileUpload(file);
-                    e.target.value = "";
-                  }}
-                />
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={isUploadingImage}
-                  onClick={() => profileInputRef.current?.click()}
-                >
-                  {isUploadingImage
-                    ? t(lang, "common.uploading")
-                    : content.hero.profile_image
-                      ? t(lang, "common.changeImage")
-                      : t(lang, "common.uploadImage")}
-                </Button>
-              </div>
 
               <Separator />
 
@@ -445,8 +603,21 @@ export function PortfolioBuilder({
                   />
                 ))}
               </div>
+
+              <Separator />
+
+              {/* Navigation anchor */}
+              <NavLabelFields
+                idPrefix="hero"
+                values={content.hero}
+                onUpdate={(patch) => patchHero(patch)}
+                lang={lang}
+                showEn={showEn}
+                showDe={showDe}
+              />
             </CardContent>
           </Card>
+          </div>
 
           {/* ── 3. Sections ──────────────────────────── */}
           <div className="flex flex-col">
@@ -472,9 +643,12 @@ export function PortfolioBuilder({
               <div key={section.id} className="flex flex-col">
                 <SectionEditor
                   section={section}
+                  index={idx + 2}
                   isFirst={idx === 0}
                   isLast={idx === sortedSections.length - 1}
                   lang={lang}
+                  showEn={showEn}
+                  showDe={showDe}
                   onUpdate={(patch) => updateSection(section.id, patch)}
                   onRemove={() => removeSection(section.id)}
                   onMoveUp={() => moveSectionUp(section.id)}
@@ -497,7 +671,7 @@ export function PortfolioBuilder({
                       </button>
                       {insertMenuAt === idx + 1 && (
                         <div className="absolute left-1/2 top-full z-20 mt-1 w-40 -translate-x-1/2 overflow-hidden rounded-lg border border-border bg-background shadow-lg">
-                          {(Object.keys(typeLabels) as SectionType[]).map((type) => (
+                          {availableTypes.map((type) => (
                             <button
                               key={type}
                               type="button"
@@ -531,7 +705,7 @@ export function PortfolioBuilder({
               </button>
               {insertMenuAt === sortedSections.length && (
                 <div className="absolute bottom-full left-1/2 z-20 mb-1 w-44 -translate-x-1/2 overflow-hidden rounded-lg border border-border bg-background shadow-lg">
-                  {(Object.keys(typeLabels) as SectionType[]).map((type) => (
+                  {availableTypes.map((type) => (
                     <button
                       key={type}
                       type="button"
@@ -550,34 +724,36 @@ export function PortfolioBuilder({
 
       {/* ── Right panel: live preview ──────────────────────────── */}
       <div className="hidden flex-1 flex-col overflow-y-auto sm:flex">
+        {/* Preview chrome bar */}
         <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-background/80 px-4 py-2 backdrop-blur-sm">
           <span className="text-xs text-muted-foreground">{t(lang, "builder.livePreview")}</span>
 
-          {/* Language switcher — only when multilanguage is on */}
+          {/* Language switcher — EN | DE style */}
           {settings.multilanguage && (
-            <div className="flex items-center gap-0.5 rounded-md border border-border bg-muted/40 p-0.5">
-              {(["en", "de"] as const).map((l) => {
-                const isActive = previewLang === l;
-                return (
+            <div className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide">
+              {(["en", "de"] as const).map((l, i) => (
+                <span key={l} className="flex items-center gap-1">
+                  {i > 0 && <span className="text-border select-none">|</span>}
                   <button
-                    key={l}
                     type="button"
                     onClick={() => setPreviewLang(l)}
                     className={[
-                      "rounded px-2.5 py-1 text-xs font-semibold uppercase tracking-wide transition-colors",
-                      isActive
-                        ? "bg-background text-foreground shadow-sm"
+                      "transition-colors",
+                      previewLang === l
+                        ? "text-foreground"
                         : "text-muted-foreground hover:text-foreground",
                     ].join(" ")}
                   >
                     {l.toUpperCase()}
                   </button>
-                );
-              })}
+                </span>
+              ))}
             </div>
           )}
         </div>
-        <div className="flex-1 bg-background">
+
+        {/* Preview content */}
+        <div className="flex min-h-full flex-col bg-background">
           <NavBar
             firstName={content.hero.firstName}
             lastName={content.hero.lastName}
@@ -586,17 +762,23 @@ export function PortfolioBuilder({
             onToggleEdit={() => {}}
             multilanguage={settings.multilanguage}
             displayLanguage={previewLang}
+            onLanguageChange={setPreviewLang}
+            navItems={previewNavItems}
+            floating={false}
           />
-          <HeroComponent
-            content={content.hero}
-            defaultLanguage={previewLang}
-            multilanguage={settings.multilanguage}
-          />
-          <SectionRenderer
-            sections={content.sections}
-            defaultLanguage={previewLang}
-            multilanguage={settings.multilanguage}
-          />
+          <main className="flex-1">
+            <HeroComponent
+              content={content.hero}
+              defaultLanguage={previewLang}
+              multilanguage={settings.multilanguage}
+            />
+            <SectionRenderer
+              sections={content.sections}
+              defaultLanguage={previewLang}
+              multilanguage={settings.multilanguage}
+            />
+          </main>
+          <Footer hero={content.hero} defaultLanguage={previewLang} />
         </div>
       </div>
     </div>

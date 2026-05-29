@@ -2,15 +2,25 @@ import { useState } from "react";
 import { SiteSettingsProvider, useSiteSettings } from "@/context/SiteSettingsContext";
 import { PortfolioContentProvider, usePortfolioContent } from "@/context/PortfolioContentContext";
 import { NavBar } from "@/components/customComponents/NavBar";
+import type { NavItem } from "@/components/customComponents/NavBar/NavBar";
 import { HeroComponent } from "@/components/customComponents/HeroComponent";
 import { SectionRenderer } from "@/components/customComponents/Sections/SectionRenderer";
+import { Footer } from "@/components/customComponents/Footer";
 import { PortfolioBuilder } from "@/components/customComponents/Builder";
+import {
+  ThemeIntroOverlay,
+  shouldShowThemeIntro,
+} from "@/components/customComponents/ThemeIntro";
 import { isLocalMode } from "@/api/apiMode";
+import { buildNavItems } from "@/lib/navLabel";
+import { cn } from "@/lib/utils";
 
 function PortfolioApp() {
   const { content, updateContent } = usePortfolioContent();
   const { settings, updateSettings } = useSiteSettings();
   const [isEditing, setIsEditing] = useState(false);
+  const [introComplete, setIntroComplete] = useState(false);
+  const [introRevealing, setIntroRevealing] = useState(false);
 
   // displayLang is the currently selected portfolio view language.
   // It starts at the configured default but can be toggled via the NavBar language switcher.
@@ -22,7 +32,18 @@ function PortfolioApp() {
   // into the GET /content response based on the viewer's IP (CloudFront function).
   const editorAllowed = isLocalMode() || content?.editor?.allowed === true;
 
+  const showThemeIntro =
+    !introComplete &&
+    !isEditing &&
+    content != null &&
+    settings != null &&
+    shouldShowThemeIntro(settings.theme, content.hero.firstName, content.hero.lastName);
+
+  const blurSiteContent = showThemeIntro && !introRevealing;
+
   if (!content || !settings) return null;
+
+  const navItems: NavItem[] = buildNavItems(content.hero, content.sections ?? [], displayLang);
 
   if (isEditing && editorAllowed) {
     return (
@@ -37,29 +58,49 @@ function PortfolioApp() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <NavBar
-        firstName={content.hero.firstName}
-        lastName={content.hero.lastName}
-        editorAllowed={editorAllowed}
-        isEditing={isEditing}
-        onToggleEdit={() => setIsEditing(true)}
-        multilanguage={settings.multilanguage}
-        displayLanguage={displayLang}
-        onLanguageChange={setDisplayLang}
-      />
-      <main>
-        <HeroComponent
-          content={content.hero}
-          defaultLanguage={displayLang}
+    <div className="relative flex min-h-screen flex-col bg-background">
+      <div
+        className={cn(
+          "flex min-h-screen flex-col transition-[filter,transform] duration-300 ease-out",
+          blurSiteContent && "pointer-events-none blur-md brightness-[0.97]",
+          introRevealing && "pointer-events-auto"
+        )}
+      >
+        <NavBar
+          firstName={content.hero.firstName}
+          lastName={content.hero.lastName}
+          editorAllowed={editorAllowed}
+          isEditing={isEditing}
+          onToggleEdit={() => setIsEditing(true)}
           multilanguage={settings.multilanguage}
+          displayLanguage={displayLang}
+          onLanguageChange={setDisplayLang}
+          navItems={navItems}
         />
-        <SectionRenderer
-          sections={content.sections ?? []}
-          defaultLanguage={displayLang}
-          multilanguage={settings.multilanguage}
+        <main className="flex-1">
+          <HeroComponent
+            content={content.hero}
+            defaultLanguage={displayLang}
+            multilanguage={settings.multilanguage}
+          />
+          <SectionRenderer
+            sections={content.sections ?? []}
+            defaultLanguage={displayLang}
+            multilanguage={settings.multilanguage}
+          />
+        </main>
+        <Footer hero={content.hero} defaultLanguage={displayLang} />
+      </div>
+
+      {showThemeIntro && (
+        <ThemeIntroOverlay
+          theme={settings.theme}
+          firstName={content.hero.firstName}
+          lastName={content.hero.lastName}
+          onReveal={() => setIntroRevealing(true)}
+          onComplete={() => setIntroComplete(true)}
         />
-      </main>
+      )}
     </div>
   );
 }
