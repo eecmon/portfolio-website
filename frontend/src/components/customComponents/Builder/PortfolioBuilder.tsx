@@ -307,6 +307,11 @@ export function PortfolioBuilder({
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [insertMenuAt, setInsertMenuAt] = useState<number | null>(null);
   const [previewLang, setPreviewLang] = useState<string>(initialSettings.defaultLanguage);
+  const [expandedSectionId, setExpandedSectionId] = useState<string | null>(() => {
+    const sections = initialContent.sections ?? [];
+    if (sections.length === 0) return null;
+    return [...sections].sort((a, b) => a.order - b.order)[0]?.id ?? null;
+  });
   const profileInputRef = useRef<HTMLInputElement>(null);
 
   function patchSettings(patch: Partial<Settings>) {
@@ -354,12 +359,14 @@ export function PortfolioBuilder({
 
   // Insert a new section at a specific position, then renumber all orders cleanly
   function insertSectionAt(insertIdx: number, type: SectionType) {
+    const newSection = makeSection(type, 0);
     const sorted = [...content.sections].sort((a, b) => a.order - b.order);
-    sorted.splice(insertIdx, 0, makeSection(type, 0));
+    sorted.splice(insertIdx, 0, newSection);
     setContent((prev) => ({
       ...prev,
       sections: sorted.map((s, i) => ({ ...s, order: i })),
     }));
+    setExpandedSectionId(newSection.id);
     setInsertMenuAt(null);
   }
 
@@ -371,10 +378,15 @@ export function PortfolioBuilder({
   }
 
   function removeSection(id: string) {
-    setContent((prev) => ({
-      ...prev,
-      sections: prev.sections.filter((s) => s.id !== id),
-    }));
+    setContent((prev) => {
+      const remaining = prev.sections.filter((s) => s.id !== id);
+      setExpandedSectionId((current) => {
+        if (current !== id) return current;
+        const sorted = [...remaining].sort((a, b) => a.order - b.order);
+        return sorted[0]?.id ?? null;
+      });
+      return { ...prev, sections: remaining };
+    });
   }
 
   function moveSectionUp(id: string) {
@@ -646,6 +658,8 @@ export function PortfolioBuilder({
                   index={idx + 2}
                   isFirst={idx === 0}
                   isLast={idx === sortedSections.length - 1}
+                  isExpanded={expandedSectionId === section.id}
+                  onExpand={() => setExpandedSectionId(section.id)}
                   lang={lang}
                   showEn={showEn}
                   showDe={showDe}

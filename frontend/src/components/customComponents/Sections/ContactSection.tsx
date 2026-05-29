@@ -71,7 +71,7 @@ function ContactFormPanel({
 }) {
   if (formState === "success") {
     return (
-      <div className="flex h-full min-h-[280px] flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-muted/30 px-6 py-10 text-center sm:px-10">
+      <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 py-8 text-center sm:min-h-[360px] sm:py-12">
         <div
           className="flex size-12 items-center justify-center rounded-full text-lg font-semibold text-white"
           style={{ backgroundColor: "var(--color-primary)" }}
@@ -86,8 +86,7 @@ function ContactFormPanel({
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-muted/20 p-5 sm:p-8">
-      <form onSubmit={onSubmit} className="flex flex-col gap-5 sm:gap-6" noValidate>
+    <form onSubmit={onSubmit} className="flex flex-col gap-5 sm:gap-6" noValidate>
         <input
           type="text"
           name="website"
@@ -195,7 +194,6 @@ function ContactFormPanel({
           </Button>
         </div>
       </form>
-    </div>
   );
 }
 
@@ -283,55 +281,59 @@ export function ContactSection({ section, defaultLanguage = "en" }: SectionProps
 
   return (
     <section id={anchorId} className="mx-auto max-w-5xl scroll-mt-20 px-6 py-14">
-      <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-3 md:gap-10 lg:gap-14">
-        {/* Form — left 2/3 on md+; below intro on mobile */}
-        <div className="order-2 md:order-1 md:col-span-2">
-          <ContactFormPanel
-            section={section}
-            lang={lang}
-            formState={formState}
-            organisation={organisation}
-            setOrganisation={setOrganisation}
-            firstName={firstName}
-            setFirstName={setFirstName}
-            lastName={lastName}
-            setLastName={setLastName}
-            message={message}
-            setMessage={setMessage}
-            isSubmitting={isSubmitting}
-            canSubmit={canSubmit}
-            onSubmit={handleSubmit}
-          />
-        </div>
+      <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
+        <div className="grid grid-cols-1 md:grid-cols-3 md:items-stretch">
+          {/* Intro — right 1/3 on md+; above form on mobile */}
+          <aside className="order-1 flex flex-col justify-center gap-4 border-b border-border bg-muted/25 px-6 py-8 sm:px-8 sm:py-10 md:order-2 md:col-span-1 md:border-b-0 md:border-l md:px-8 md:py-10 lg:px-10">
+            {section.iconUrl && (
+              <img
+                src={section.iconUrl}
+                alt=""
+                aria-hidden="true"
+                className="size-7 shrink-0 object-contain"
+              />
+            )}
+            {title && (
+              <h2
+                className="text-2xl font-bold tracking-tight md:text-[1.65rem] md:leading-tight"
+                style={{ color: "var(--color-text)" }}
+              >
+                {title}
+              </h2>
+            )}
+            {subtext && (
+              <p className="text-sm font-medium md:text-base" style={{ color: "var(--color-primary)" }}>
+                {subtext}
+              </p>
+            )}
+            {description && (
+              <p className="text-sm leading-relaxed text-muted-foreground md:text-[15px]">
+                {description}
+              </p>
+            )}
+          </aside>
 
-        {/* Intro copy — right 1/3 on md+; above form on mobile */}
-        <div className="order-1 flex flex-col gap-4 md:order-2 md:col-span-1 md:pt-1">
-          {section.iconUrl && (
-            <img
-              src={section.iconUrl}
-              alt=""
-              aria-hidden="true"
-              className="size-7 shrink-0 object-contain"
-            />
-          )}
-          {title && (
-            <h2
-              className="text-2xl font-bold tracking-tight md:text-3xl"
-              style={{ color: "var(--color-text)" }}
-            >
-              {title}
-            </h2>
-          )}
-          {subtext && (
-            <p className="text-sm font-medium md:text-base" style={{ color: "var(--color-primary)" }}>
-              {subtext}
-            </p>
-          )}
-          {description && (
-            <p className="text-sm leading-relaxed text-muted-foreground md:text-[15px]">
-              {description}
-            </p>
-          )}
+          {/* Form — left 2/3 on md+ */}
+          <div className="order-2 md:order-1 md:col-span-2 md:row-span-1">
+            <div className="px-6 py-8 sm:px-8 sm:py-10 lg:px-10">
+              <ContactFormPanel
+                section={section}
+                lang={lang}
+                formState={formState}
+                organisation={organisation}
+                setOrganisation={setOrganisation}
+                firstName={firstName}
+                setFirstName={setFirstName}
+                lastName={lastName}
+                setLastName={setLastName}
+                message={message}
+                setMessage={setMessage}
+                isSubmitting={isSubmitting}
+                canSubmit={canSubmit}
+                onSubmit={handleSubmit}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </section>

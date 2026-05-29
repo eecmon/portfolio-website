@@ -102,6 +102,26 @@ describe("PortfolioBuilder — sections", () => {
     expect(reordered[1].textContent).toBe("Alpha");
   });
 
+  it("collapses inactive sections and expands on click", async () => {
+    const content: Content = {
+      ...baseContent,
+      sections: [
+        { id: "s1", type: "text", order: 0, title: "Alpha", data: {} },
+        { id: "s2", type: "contact", order: 1, title: "Beta", data: {} },
+      ],
+    };
+    renderBuilder(content);
+
+    // First section expanded — text body visible, contact collapsed
+    expect(screen.getByPlaceholderText("Write your content…")).toBeInTheDocument();
+    expect(screen.queryByText(/CONTACT_EMAIL/i)).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Expand section" }));
+
+    expect(screen.queryByPlaceholderText("Write your content…")).not.toBeInTheDocument();
+    expect(screen.getByText(/CONTACT_EMAIL/i)).toBeInTheDocument();
+  });
+
   it("removing a section deletes it from the editor", async () => {
     const content: Content = {
       ...baseContent,
