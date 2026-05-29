@@ -4,9 +4,10 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // vi.hoisted() runs BEFORE module evaluation so the mocks below
 // can safely reference these fns when the Lambda is first imported.
 
-const { mockDdbSend, mockGetSignedUrl } = vi.hoisted(() => ({
+const { mockDdbSend, mockGetSignedUrl, mockSsmSend } = vi.hoisted(() => ({
   mockDdbSend: vi.fn(),
   mockGetSignedUrl: vi.fn(),
+  mockSsmSend: vi.fn(),
 }));
 
 vi.mock('@aws-sdk/client-dynamodb', () => ({
@@ -26,6 +27,11 @@ vi.mock('@aws-sdk/client-s3', () => ({
 
 vi.mock('@aws-sdk/s3-request-presigner', () => ({
   getSignedUrl: mockGetSignedUrl,
+}));
+
+vi.mock('@aws-sdk/client-ssm', () => ({
+  SSMClient: vi.fn(() => ({ send: mockSsmSend })),
+  GetParameterCommand: vi.fn((params) => ({ _type: 'GetParameterCommand', ...params })),
 }));
 
 const { handler } = await import('./index.js');
@@ -250,6 +256,18 @@ describe('POST /upload', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.key).not.toMatch(/[ ()]/);
+  });
+});
+
+// ── GET /github-contributions ──────────────────────────────────────
+
+describe('GET /github-contributions', () => {
+  it('returns 503 when GITHUB_TOKEN_PARAM env var is not set', async () => {
+    const res = parseResponse(
+      await handler(makeEvent({ path: '/api/github-contributions' }))
+    );
+
+    expect(res.status).toBe(503);
   });
 });
 
