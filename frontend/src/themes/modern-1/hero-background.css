@@ -1,4 +1,4 @@
-/* Modern 1 — diagonal secondary band behind the hero section */
+/* Modern 1 — diagonal secondary band behind the hero section (top fill) */
 
 [data-hero-background="modern-1"] {
   position: relative;
@@ -11,8 +11,9 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background: color-mix(in srgb, var(--color-secondary) 22%, transparent);
-  clip-path: polygon(0 48%, 100% 28%, 100% 100%, 0 100%);
+  background: color-mix(in srgb, var(--color-secondary) 24%, transparent);
+  /* Gentle slope: right edge only slightly higher than left */
+  clip-path: polygon(0 0, 100% 0, 100% 76%, 0 94%);
 }
 
 [data-hero-background="modern-1"]::after {
@@ -20,11 +21,11 @@
   position: absolute;
   left: -8%;
   right: -8%;
-  top: 38%;
+  top: 85%;
   height: 1px;
   z-index: 0;
   pointer-events: none;
   background: color-mix(in srgb, var(--color-secondary) 65%, transparent);
-  transform: rotate(-5.5deg);
+  transform: rotate(-3deg);
   transform-origin: center;
 }

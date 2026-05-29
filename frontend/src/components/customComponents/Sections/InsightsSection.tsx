@@ -101,10 +101,15 @@ function InsightCard({ item, lang }: { item: InsightItem; lang: string }) {
   const shortDescription =
     (lang === "de" ? item.shortDescription_de : item.shortDescription_en) ||
     item.shortDescription;
+  const cardBackground =
+    "color-mix(in srgb, var(--color-secondary) 32%, var(--background, #ffffff))";
 
   return (
     <>
-      <article className="relative flex h-[288px] flex-col overflow-hidden rounded-xl border border-border bg-background transition-colors hover:border-[var(--color-primary)] hover:bg-muted/20">
+      <article
+        className="relative flex h-[288px] flex-col overflow-hidden rounded-xl border border-border transition-colors hover:border-[var(--color-primary)]"
+        style={{ backgroundColor: cardBackground }}
+      >
         <div className="flex flex-1 flex-col gap-2 overflow-hidden p-5 pb-14">
           <p className="text-base font-semibold leading-snug" style={{ color: "var(--color-text)" }}>
             {name}
@@ -123,12 +128,21 @@ function InsightCard({ item, lang }: { item: InsightItem; lang: string }) {
           )}
         </div>
 
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-end bg-gradient-to-t from-background via-background/90 to-transparent px-5 pt-10 pb-4">
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-end px-5 pt-10 pb-4"
+          style={{
+            background: `linear-gradient(to top, ${cardBackground} 35%, transparent 100%)`,
+          }}
+        >
           <Button
             type="button"
-            variant="outline"
+            variant="default"
             size="sm"
-            className="pointer-events-auto shadow-sm"
+            className="pointer-events-auto border-transparent shadow-sm hover:opacity-90"
+            style={{
+              backgroundColor: "var(--color-primary)",
+              color: "var(--color-primary-foreground, #ffffff)",
+            }}
             onClick={() => setOpen(true)}
           >
             {t(lang, "insightsSection.viewDetails")}
