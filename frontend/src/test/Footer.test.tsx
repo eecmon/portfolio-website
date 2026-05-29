@@ -108,4 +108,12 @@ describe("Footer", () => {
     render(<Footer hero={hero} defaultLanguage="en" />);
     expect(screen.getByRole("link", { name: /portfolio/i })).toBeInTheDocument();
   });
+
+  it("applies modern-1 footer theme wrapper when theme is modern-1", () => {
+    const { container } = render(
+      <Footer hero={baseHero} defaultLanguage="en" theme="modern-1" />
+    );
+
+    expect(container.querySelector('[data-footer="modern-1"]')).toBeInTheDocument();
+  });
 });

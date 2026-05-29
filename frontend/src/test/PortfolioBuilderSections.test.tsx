@@ -102,6 +102,21 @@ describe("PortfolioBuilder — sections", () => {
     expect(reordered[1].textContent).toBe("Alpha");
   });
 
+  it("collapses hero when a section is active", async () => {
+    const content: Content = {
+      ...baseContent,
+      sections: [{ id: "s1", type: "text", order: 0, title: "About", data: {} }],
+    };
+    renderBuilder(content);
+
+    expect(screen.queryByLabelText(/first name/i)).not.toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Section title")).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole("button", { name: "Expand hero section" }));
+    expect(screen.getByLabelText(/first name/i)).toBeInTheDocument();
+    expect(screen.queryByPlaceholderText("Section title")).not.toBeInTheDocument();
+  });
+
   it("collapses inactive sections and expands on click", async () => {
     const content: Content = {
       ...baseContent,

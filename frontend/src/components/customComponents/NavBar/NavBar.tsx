@@ -132,10 +132,12 @@ export function NavBar({
   if (!floating) {
     return (
       <header className="sticky top-0 z-10 border-b border-border/40 bg-background/80 backdrop-blur-sm">
-        <nav className="mx-auto flex h-12 max-w-5xl items-center justify-between gap-6 px-6">
+        <nav className="mx-auto flex h-12 max-w-5xl items-center gap-6 px-6">
           {brand}
-          {navItems.length > 0 && <NavLinks items={navItems} />}
-          {rightControls}
+          <div className="ml-auto flex shrink-0 items-center gap-6">
+            {navItems.length > 0 && <NavLinks items={navItems} />}
+            {rightControls}
+          </div>
         </nav>
       </header>
     );
@@ -149,10 +151,12 @@ export function NavBar({
         hideOnScroll && "-translate-y-[calc(100%+1.5rem)] opacity-0"
       )}
     >
-      <nav className="pointer-events-auto flex w-full max-w-5xl items-center justify-between gap-6 rounded-full border border-border/60 bg-background/85 px-5 py-2.5 shadow-lg shadow-black/10 backdrop-blur-md">
+      <nav className="pointer-events-auto flex w-full max-w-5xl items-center gap-6 rounded-full border border-border/60 bg-background/85 px-5 py-2.5 shadow-lg shadow-black/10 backdrop-blur-md">
         {brand}
-        {navItems.length > 0 && <NavLinks items={navItems} />}
-        {rightControls}
+        <div className="ml-auto flex shrink-0 items-center gap-6">
+          {navItems.length > 0 && <NavLinks items={navItems} />}
+          {rightControls}
+        </div>
       </nav>
     </header>
   );

@@ -5,6 +5,7 @@ export interface SectionProps {
   section: PortfolioSection;
   defaultLanguage?: string;
   multilanguage?: boolean;
+  theme?: string;
 }
 
 export function TimelineSection({ section, defaultLanguage = "en" }: SectionProps) {

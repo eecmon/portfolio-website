@@ -31,7 +31,7 @@ function ImageRow({ image, isFirst, isLast, lang, multilanguage, onUpdate, onRem
   async function handleUpload(file: File) {
     setUploading(true);
     try {
-      const url = await uploadFile(file);
+      const url = await uploadFile(file, { preset: "content" });
       onUpdate({ imageUrl: url });
     } finally {
       setUploading(false);
@@ -138,7 +138,7 @@ export function ImageSectionEditor({
   async function handleIconUpload(file: File) {
     setUploadingIcon(true);
     try {
-      const url = await uploadFile(file);
+      const url = await uploadFile(file, { preset: "icon" });
       onUpdate({ iconUrl: url });
     } finally {
       setUploadingIcon(false);

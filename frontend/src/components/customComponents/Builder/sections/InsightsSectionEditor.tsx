@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,12 +16,27 @@ function uid() {
   return Math.random().toString(36).slice(2, 9);
 }
 
+function itemDisplayName(item: InsightItem, lang: string, multilanguage: boolean): string {
+  const name =
+    (multilanguage ? (lang === "de" ? item.name_de : item.name_en) : item.name) || item.name;
+  return name?.trim() || "";
+}
+
+function blockDisplayName(block: InsightDetailBlock, lang: string, multilanguage: boolean): string {
+  const header =
+    (multilanguage ? (lang === "de" ? block.header_de : block.header_en) : block.header) ||
+    block.header;
+  return header?.trim() || "";
+}
+
 // ── Detail block editor ───────────────────────────────────────────
 
 interface DetailBlockEditorProps {
   block: InsightDetailBlock;
   isFirst: boolean;
   isLast: boolean;
+  isExpanded: boolean;
+  onExpand: () => void;
   lang: string;
   multilanguage: boolean;
   onUpdate: (patch: Partial<InsightDetailBlock>) => void;
@@ -30,35 +45,90 @@ interface DetailBlockEditorProps {
   onMoveDown: () => void;
 }
 
-function DetailBlockEditor({ block, isFirst, isLast, lang, multilanguage, onUpdate, onRemove, onMoveUp, onMoveDown }: DetailBlockEditorProps) {
+function DetailBlockEditor({
+  block,
+  isFirst,
+  isLast,
+  isExpanded,
+  onExpand,
+  lang,
+  multilanguage,
+  onUpdate,
+  onRemove,
+  onMoveUp,
+  onMoveDown,
+}: DetailBlockEditorProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const displayLabel =
+    blockDisplayName(block, lang, multilanguage) || t(lang, "insightsSection.unnamedBlock");
 
   async function handleUpload(file: File) {
     setUploading(true);
     try {
-      const url = await uploadFile(file);
+      const url = await uploadFile(file, { preset: "content" });
       onUpdate({ imageUrl: url });
     } finally {
       setUploading(false);
     }
   }
 
-  return (
-    <div className="flex flex-col gap-2 rounded border border-dashed border-border bg-muted/20 p-2.5">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          <button type="button" disabled={isFirst} onClick={onMoveUp}
-            className="rounded p-0.5 text-xs text-muted-foreground hover:text-foreground disabled:opacity-30">↑</button>
-          <button type="button" disabled={isLast} onClick={onMoveDown}
-            className="rounded p-0.5 text-xs text-muted-foreground hover:text-foreground disabled:opacity-30">↓</button>
-        </div>
-        <button type="button" onClick={onRemove}
-          className="text-xs text-destructive hover:underline">
-          {t(lang, "common.remove")}
+  const controls = (
+    <div className="flex shrink-0 items-center gap-1">
+      <button
+        type="button"
+        disabled={isFirst}
+        onClick={onMoveUp}
+        className="rounded p-0.5 text-xs text-muted-foreground hover:text-foreground disabled:opacity-30"
+      >
+        ↑
+      </button>
+      <button
+        type="button"
+        disabled={isLast}
+        onClick={onMoveDown}
+        className="rounded p-0.5 text-xs text-muted-foreground hover:text-foreground disabled:opacity-30"
+      >
+        ↓
+      </button>
+      <button type="button" onClick={onRemove} className="text-xs text-destructive hover:underline">
+        {t(lang, "common.remove")}
+      </button>
+    </div>
+  );
+
+  if (!isExpanded) {
+    return (
+      <div className="flex items-center justify-between gap-2 rounded border border-border bg-muted/40 px-2.5 py-2">
+        <button
+          type="button"
+          onClick={onExpand}
+          aria-expanded={false}
+          aria-label={t(lang, "insightsSection.expandBlock")}
+          className="min-w-0 flex-1 truncate text-left text-xs font-medium transition-colors hover:text-[var(--color-primary)]"
+        >
+          {displayLabel}
         </button>
+        {controls}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="flex flex-col gap-2 rounded border border-dashed border-border p-2.5 ring-2 ring-[color-mix(in_srgb,var(--color-primary)_35%,transparent)]"
+      style={{
+        backgroundColor: "color-mix(in srgb, var(--color-primary) 8%, var(--background, #ffffff))",
+      }}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className="truncate text-xs font-medium" style={{ color: "var(--color-text)" }}>
+          {displayLabel}
+        </span>
+        {controls}
       </div>
 
+      <div className="flex flex-col gap-2 [&_[data-slot=input]]:bg-white [&_[data-slot=textarea]]:bg-white dark:[&_[data-slot=input]]:bg-background dark:[&_[data-slot=textarea]]:bg-background">
       {multilanguage ? (
         <>
           <Input placeholder={t(lang, "insightsSection.blockHeaderEn")} value={block.header_en ?? ""}
@@ -105,6 +175,7 @@ function DetailBlockEditor({ block, isFirst, isLast, lang, multilanguage, onUpda
           </button>
         )}
       </div>
+      </div>
     </div>
   );
 }
@@ -115,6 +186,8 @@ interface ItemEditorProps {
   item: InsightItem;
   isFirst: boolean;
   isLast: boolean;
+  isExpanded: boolean;
+  onExpand: () => void;
   lang: string;
   multilanguage: boolean;
   onUpdate: (patch: Partial<InsightItem>) => void;
@@ -123,16 +196,29 @@ interface ItemEditorProps {
   onMoveDown: () => void;
 }
 
-function ItemEditor({ item, isFirst, isLast, lang, multilanguage, onUpdate, onRemove, onMoveUp, onMoveDown }: ItemEditorProps) {
+function ItemEditor({
+  item,
+  isFirst,
+  isLast,
+  isExpanded,
+  onExpand,
+  lang,
+  multilanguage,
+  onUpdate,
+  onRemove,
+  onMoveUp,
+  onMoveDown,
+}: ItemEditorProps) {
   const sortedBlocks = [...item.detailBlocks].sort((a, b) => a.order - b.order);
+  const [expandedBlockId, setExpandedBlockId] = useState<string | null>(null);
+  const displayName =
+    itemDisplayName(item, lang, multilanguage) || t(lang, "insightsSection.unnamedItem");
 
   function addBlock() {
     const maxOrder = sortedBlocks.reduce((m, b) => Math.max(m, b.order), -1);
-    const next: InsightDetailBlock[] = [
-      ...item.detailBlocks,
-      { id: uid(), order: maxOrder + 1 },
-    ];
-    onUpdate({ detailBlocks: next });
+    const newBlock: InsightDetailBlock = { id: uid(), order: maxOrder + 1 };
+    onUpdate({ detailBlocks: [...item.detailBlocks, newBlock] });
+    setExpandedBlockId(newBlock.id);
   }
 
   function updateBlock(id: string, patch: Partial<InsightDetailBlock>) {
@@ -142,7 +228,13 @@ function ItemEditor({ item, isFirst, isLast, lang, multilanguage, onUpdate, onRe
   }
 
   function removeBlock(id: string) {
-    onUpdate({ detailBlocks: item.detailBlocks.filter((b) => b.id !== id) });
+    const remaining = item.detailBlocks.filter((b) => b.id !== id);
+    onUpdate({ detailBlocks: remaining });
+    setExpandedBlockId((current) => {
+      if (current !== id) return current;
+      const sorted = [...remaining].sort((a, b) => a.order - b.order);
+      return sorted[0]?.id ?? null;
+    });
   }
 
   function moveBlock(id: string, dir: "up" | "down") {
@@ -160,27 +252,87 @@ function ItemEditor({ item, isFirst, isLast, lang, multilanguage, onUpdate, onRe
     });
   }
 
-  return (
-    <div className="flex flex-col gap-3 rounded-lg border border-border p-3">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1">
-          <button type="button" disabled={isFirst} onClick={onMoveUp}
-            className="rounded p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-30">↑</button>
-          <button type="button" disabled={isLast} onClick={onMoveDown}
-            className="rounded p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-30">↓</button>
-        </div>
-        <button type="button" onClick={onRemove}
-          className="text-xs text-destructive hover:underline">
-          {t(lang, "common.remove")}
+  useEffect(() => {
+    if (!isExpanded) return;
+    setExpandedBlockId((current) => {
+      if (current && item.detailBlocks.some((block) => block.id === current)) return current;
+      return sortedBlocks[0]?.id ?? null;
+    });
+  }, [isExpanded, item.detailBlocks, item.id, sortedBlocks]);
+
+  const itemControls = (
+    <div className="flex shrink-0 items-center gap-1">
+      <button
+        type="button"
+        disabled={isFirst}
+        onClick={onMoveUp}
+        className="rounded p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-30"
+      >
+        ↑
+      </button>
+      <button
+        type="button"
+        disabled={isLast}
+        onClick={onMoveDown}
+        className="rounded p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-30"
+      >
+        ↓
+      </button>
+      <button type="button" onClick={onRemove} className="text-xs text-destructive hover:underline">
+        {t(lang, "common.remove")}
+      </button>
+    </div>
+  );
+
+  if (!isExpanded) {
+    return (
+      <div className="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2.5">
+        <button
+          type="button"
+          onClick={onExpand}
+          aria-expanded={false}
+          aria-label={t(lang, "insightsSection.expandItem")}
+          className="flex min-w-0 flex-1 items-center gap-2 text-left transition-colors hover:text-[var(--color-primary)]"
+        >
+          <span className="truncate text-sm font-semibold" style={{ color: "var(--color-text)" }}>
+            {displayName}
+          </span>
+          {sortedBlocks.length > 0 && (
+            <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+              {sortedBlocks.length} {t(lang, "insightsSection.blocksHeading").toLowerCase()}
+            </span>
+          )}
         </button>
+        {itemControls}
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="flex flex-col gap-3 rounded-lg border border-border p-3 ring-2 ring-[color-mix(in_srgb,var(--color-primary)_35%,transparent)]"
+      style={{
+        backgroundColor: "color-mix(in srgb, var(--color-primary) 8%, var(--background, #ffffff))",
+      }}
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className="truncate text-sm font-semibold" style={{ color: "var(--color-text)" }}>
+          {displayName}
+        </span>
+        {itemControls}
       </div>
 
+      <div className="flex flex-col gap-3 [&_[data-slot=input]]:bg-white [&_[data-slot=textarea]]:bg-white dark:[&_[data-slot=input]]:bg-background dark:[&_[data-slot=textarea]]:bg-background">
       {multilanguage ? (
         <>
           <Input placeholder={t(lang, "insightsSection.nameEn")} value={item.name_en ?? ""}
             onChange={(e) => onUpdate({ name_en: e.target.value })} />
           <Input placeholder={t(lang, "insightsSection.nameDe")} value={item.name_de ?? ""}
             onChange={(e) => onUpdate({ name_de: e.target.value })} />
+          <Input placeholder={t(lang, "insightsSection.subtextEn")} value={item.subtext_en ?? ""}
+            onChange={(e) => onUpdate({ subtext_en: e.target.value })} />
+          <Input placeholder={t(lang, "insightsSection.subtextDe")} value={item.subtext_de ?? ""}
+            onChange={(e) => onUpdate({ subtext_de: e.target.value })} />
           <Textarea placeholder={t(lang, "insightsSection.shortDescriptionEn")} value={item.shortDescription_en ?? ""}
             onChange={(e) => onUpdate({ shortDescription_en: e.target.value })} className="min-h-[60px]" />
           <Textarea placeholder={t(lang, "insightsSection.shortDescriptionDe")} value={item.shortDescription_de ?? ""}
@@ -190,6 +342,8 @@ function ItemEditor({ item, isFirst, isLast, lang, multilanguage, onUpdate, onRe
         <>
           <Input placeholder={t(lang, "insightsSection.name")} value={item.name}
             onChange={(e) => onUpdate({ name: e.target.value })} />
+          <Input placeholder={t(lang, "insightsSection.subtext")} value={item.subtext ?? ""}
+            onChange={(e) => onUpdate({ subtext: e.target.value })} />
           <Textarea placeholder={t(lang, "insightsSection.shortDescription")} value={item.shortDescription}
             onChange={(e) => onUpdate({ shortDescription: e.target.value })} className="min-h-[60px]" />
         </>
@@ -198,20 +352,29 @@ function ItemEditor({ item, isFirst, isLast, lang, multilanguage, onUpdate, onRe
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
           <span className="text-xs font-medium text-muted-foreground">
-            {t(lang, "insightsSection.addBlock").replace("Add ", "").replace("hinzufügen", "").trim()}
+            {t(lang, "insightsSection.blocksHeading")}
           </span>
           <Button variant="outline" size="sm" onClick={addBlock}>
             + {t(lang, "insightsSection.addBlock")}
           </Button>
         </div>
         {sortedBlocks.map((block, idx) => (
-          <DetailBlockEditor key={block.id} block={block} lang={lang} multilanguage={multilanguage}
-            isFirst={idx === 0} isLast={idx === sortedBlocks.length - 1}
+          <DetailBlockEditor
+            key={block.id}
+            block={block}
+            lang={lang}
+            multilanguage={multilanguage}
+            isFirst={idx === 0}
+            isLast={idx === sortedBlocks.length - 1}
+            isExpanded={expandedBlockId === block.id}
+            onExpand={() => setExpandedBlockId(block.id)}
             onUpdate={(patch) => updateBlock(block.id, patch)}
             onRemove={() => removeBlock(block.id)}
             onMoveUp={() => moveBlock(block.id, "up")}
-            onMoveDown={() => moveBlock(block.id, "down")} />
+            onMoveDown={() => moveBlock(block.id, "down")}
+          />
         ))}
+      </div>
       </div>
     </div>
   );
@@ -235,6 +398,7 @@ export function InsightsSectionEditor({ section, lang = "en", showEn = true, sho
   const items = [...((section.data.items as InsightItem[] | undefined) ?? [])].sort(
     (a, b) => a.order - b.order
   );
+  const [expandedItemId, setExpandedItemId] = useState<string | null>(() => items[0]?.id ?? null);
 
   function patchItems(next: InsightItem[]) {
     onUpdate({ data: { ...section.data, items: next } });
@@ -242,10 +406,16 @@ export function InsightsSectionEditor({ section, lang = "en", showEn = true, sho
 
   function addItem() {
     const maxOrder = items.reduce((m, it) => Math.max(m, it.order), -1);
-    patchItems([
-      ...items,
-      { id: uid(), order: maxOrder + 1, name: "", shortDescription: "", detailBlocks: [] },
-    ]);
+    const newItem: InsightItem = {
+      id: uid(),
+      order: maxOrder + 1,
+      name: "",
+      subtext: "",
+      shortDescription: "",
+      detailBlocks: [],
+    };
+    patchItems([...items, newItem]);
+    setExpandedItemId(newItem.id);
   }
 
   function updateItem(id: string, patch: Partial<InsightItem>) {
@@ -253,7 +423,12 @@ export function InsightsSectionEditor({ section, lang = "en", showEn = true, sho
   }
 
   function removeItem(id: string) {
-    patchItems(items.filter((it) => it.id !== id));
+    const remaining = items.filter((it) => it.id !== id);
+    patchItems(remaining);
+    setExpandedItemId((current) => {
+      if (current !== id) return current;
+      return remaining[0]?.id ?? null;
+    });
   }
 
   function moveItem(id: string, dir: "up" | "down") {
@@ -271,7 +446,7 @@ export function InsightsSectionEditor({ section, lang = "en", showEn = true, sho
   async function handleIconUpload(file: File) {
     setUploadingIcon(true);
     try {
-      const url = await uploadFile(file);
+      const url = await uploadFile(file, { preset: "icon" });
       onUpdate({ iconUrl: url });
     } finally {
       setUploadingIcon(false);
@@ -367,12 +542,20 @@ export function InsightsSectionEditor({ section, lang = "en", showEn = true, sho
           <p className="text-xs text-muted-foreground">{t(lang, "insightsSection.noItems")}</p>
         )}
         {items.map((item, idx) => (
-          <ItemEditor key={item.id} item={item} lang={lang} multilanguage={multilanguage}
-            isFirst={idx === 0} isLast={idx === items.length - 1}
+          <ItemEditor
+            key={item.id}
+            item={item}
+            lang={lang}
+            multilanguage={multilanguage}
+            isFirst={idx === 0}
+            isLast={idx === items.length - 1}
+            isExpanded={expandedItemId === item.id}
+            onExpand={() => setExpandedItemId(item.id)}
             onUpdate={(patch) => updateItem(item.id, patch)}
             onRemove={() => removeItem(item.id)}
             onMoveUp={() => moveItem(item.id, "up")}
-            onMoveDown={() => moveItem(item.id, "down")} />
+            onMoveDown={() => moveItem(item.id, "down")}
+          />
         ))}
       </div>
     </div>

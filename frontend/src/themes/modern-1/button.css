@@ -1,10 +1,10 @@
 /* modern-1 default button — uses runtime --color-primary / --color-text tokens */
 
 [data-theme="modern-1"] {
-  --modern-1-button-bg: color-mix(in oklch, var(--color-primary) 72%, black);
-  --modern-1-button-border: color-mix(in oklch, var(--color-primary) 52%, black);
+  --modern-1-button-bg: var(--color-primary);
+  --modern-1-button-border: var(--color-primary);
   --modern-1-button-text: var(--primary-foreground);
-  --modern-1-button-shadow: color-mix(in oklch, var(--color-primary) 22%, transparent);
+  --modern-1-button-shadow: color-mix(in srgb, var(--color-primary) 28%, transparent);
 }
 
 [data-theme="modern-1"] [data-slot="button"][data-variant="default"] {
@@ -41,8 +41,8 @@
 }
 
 [data-theme="modern-1"] [data-slot="button"][data-variant="default"]:hover {
-  background-color: color-mix(in oklch, var(--modern-1-button-bg) 88%, white);
-  border-color: color-mix(in oklch, var(--color-primary) 62%, white);
+  background-color: color-mix(in srgb, var(--color-primary) 88%, white);
+  border-color: color-mix(in srgb, var(--color-primary) 88%, white);
   box-shadow: 0 25px 50px -12px var(--modern-1-button-shadow);
 }
 
@@ -53,4 +53,18 @@
 [data-theme="modern-1"] [data-slot="button"][data-variant="default"] > * {
   position: relative;
   z-index: 1;
+}
+
+[data-theme="modern-1"] .hero-link {
+  border-radius: 9999px;
+  border-color: var(--color-primary);
+  transition:
+    background-color 200ms ease,
+    border-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+[data-theme="modern-1"] .hero-link:hover {
+  border-color: var(--color-primary);
+  background-color: color-mix(in srgb, var(--color-primary) 8%, var(--background, #ffffff));
 }

@@ -5,12 +5,14 @@ interface SectionRendererProps {
   sections: PortfolioSection[];
   defaultLanguage?: string;
   multilanguage?: boolean;
+  theme?: string;
 }
 
 export function SectionRenderer({
   sections,
   defaultLanguage,
   multilanguage,
+  theme,
 }: SectionRendererProps) {
   const sorted = [...sections].sort((a, b) => a.order - b.order);
 
@@ -27,6 +29,7 @@ export function SectionRenderer({
             section={section}
             defaultLanguage={defaultLanguage}
             multilanguage={multilanguage}
+            theme={theme}
           />
         );
       })}

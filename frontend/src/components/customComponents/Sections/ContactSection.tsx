@@ -284,7 +284,12 @@ export function ContactSection({ section, defaultLanguage = "en" }: SectionProps
       <div className="overflow-hidden rounded-2xl border border-border bg-background shadow-sm">
         <div className="grid grid-cols-1 md:grid-cols-3 md:items-stretch">
           {/* Intro — right 1/3 on md+; above form on mobile */}
-          <aside className="order-1 flex flex-col justify-center gap-4 border-b border-border bg-muted/25 px-6 py-8 sm:px-8 sm:py-10 md:order-2 md:col-span-1 md:border-b-0 md:border-l md:px-8 md:py-10 lg:px-10">
+          <aside
+            className="order-1 flex flex-col justify-center gap-4 border-b border-border px-6 py-8 sm:px-8 sm:py-10 md:order-2 md:col-span-1 md:border-b-0 md:border-l md:border-border/60 md:px-8 md:py-10 lg:px-10"
+            style={{
+              backgroundColor: "color-mix(in srgb, var(--color-secondary) 32%, var(--background, #ffffff))",
+            }}
+          >
             {section.iconUrl && (
               <img
                 src={section.iconUrl}

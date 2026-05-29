@@ -22,6 +22,7 @@ import type { Settings } from "@/api/settingsApi";
 import type { Content, HeroContent, HeroLink, PortfolioSection, SectionType } from "@/api/contentApi";
 import type { NavItem } from "@/components/customComponents/NavBar/NavBar";
 import { t } from "@/i18n";
+import { themeSupportsHeroBackground } from "@/themes/heroBackgroundRegistry";
 
 // ── Profile image editor (placeholder + drag-reposition + hover-delete) ──
 
@@ -204,7 +205,7 @@ function LinkRow({ link, index, lang, onUpdate, onRemove }: LinkRowProps) {
   async function handleIconUpload(file: File) {
     setIsUploadingIcon(true);
     try {
-      const url = await uploadFile(file);
+      const url = await uploadFile(file, { preset: "icon" });
       onUpdate({ iconUrl: url });
     } finally {
       setIsUploadingIcon(false);
@@ -307,10 +308,10 @@ export function PortfolioBuilder({
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [insertMenuAt, setInsertMenuAt] = useState<number | null>(null);
   const [previewLang, setPreviewLang] = useState<string>(initialSettings.defaultLanguage);
-  const [expandedSectionId, setExpandedSectionId] = useState<string | null>(() => {
+  const [activeBlockId, setActiveBlockId] = useState<string>(() => {
     const sections = initialContent.sections ?? [];
-    if (sections.length === 0) return null;
-    return [...sections].sort((a, b) => a.order - b.order)[0]?.id ?? null;
+    if (sections.length === 0) return "hero";
+    return [...sections].sort((a, b) => a.order - b.order)[0]?.id ?? "hero";
   });
   const profileInputRef = useRef<HTMLInputElement>(null);
 
@@ -346,7 +347,7 @@ export function PortfolioBuilder({
   async function handleProfileUpload(file: File) {
     setIsUploadingImage(true);
     try {
-      const url = await uploadFile(file);
+      const url = await uploadFile(file, { preset: "avatar" });
       patchHero({ profile_image: url });
     } finally {
       setIsUploadingImage(false);
@@ -366,7 +367,7 @@ export function PortfolioBuilder({
       ...prev,
       sections: sorted.map((s, i) => ({ ...s, order: i })),
     }));
-    setExpandedSectionId(newSection.id);
+    setActiveBlockId(newSection.id);
     setInsertMenuAt(null);
   }
 
@@ -380,10 +381,10 @@ export function PortfolioBuilder({
   function removeSection(id: string) {
     setContent((prev) => {
       const remaining = prev.sections.filter((s) => s.id !== id);
-      setExpandedSectionId((current) => {
+      setActiveBlockId((current) => {
         if (current !== id) return current;
         const sorted = [...remaining].sort((a, b) => a.order - b.order);
-        return sorted[0]?.id ?? null;
+        return sorted[0]?.id ?? "hero";
       });
       return { ...prev, sections: remaining };
     });
@@ -444,6 +445,11 @@ export function PortfolioBuilder({
     return true;
   });
 
+  const isHeroExpanded = activeBlockId === "hero";
+  const heroDisplayName =
+    [content.hero.firstName, content.hero.lastName].filter(Boolean).join(" ") ||
+    t(lang, "hero.card");
+
   const previewNavItems: NavItem[] = buildNavItems(content.hero, sortedSections, previewLang);
 
   return (
@@ -480,11 +486,46 @@ export function PortfolioBuilder({
             >
               Block 1
             </span>
-            <Card className="ring-2 ring-foreground/10">
-            <CardHeader>
-              <CardTitle>{t(lang, "hero.card")}</CardTitle>
+            <Card
+              className={[
+                "border-0 transition-[background-color,box-shadow]",
+                isHeroExpanded
+                  ? "ring-2 ring-[color-mix(in_srgb,var(--color-primary)_45%,transparent)]"
+                  : "bg-muted/50 ring-1 ring-border/50 hover:bg-muted/65",
+              ].join(" ")}
+              style={
+                isHeroExpanded
+                  ? {
+                      backgroundColor:
+                        "color-mix(in srgb, var(--color-primary) 11%, var(--background, #ffffff))",
+                    }
+                  : undefined
+              }
+            >
+            <CardHeader className={isHeroExpanded ? "pb-2" : "py-3"}>
+              <div className="flex items-center justify-between gap-2">
+                {isHeroExpanded ? (
+                  <CardTitle>{t(lang, "hero.card")}</CardTitle>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setActiveBlockId("hero")}
+                    aria-expanded={false}
+                    aria-label={t(lang, "hero.expand")}
+                    className="flex min-w-0 flex-1 items-center gap-2 text-left transition-colors hover:text-[var(--color-primary)]"
+                  >
+                    <span className="truncate text-sm font-semibold" style={{ color: "var(--color-text)" }}>
+                      {heroDisplayName}
+                    </span>
+                    <span className="shrink-0 rounded-md bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">
+                      {t(lang, "hero.card")}
+                    </span>
+                  </button>
+                )}
+              </div>
             </CardHeader>
-            <CardContent className="flex flex-col gap-4">
+            {isHeroExpanded && (
+            <CardContent className="flex flex-col gap-4 [&_[data-slot=input]]:bg-white [&_[data-slot=textarea]]:bg-white dark:[&_[data-slot=input]]:bg-background dark:[&_[data-slot=textarea]]:bg-background">
               {/* Hidden file input for profile image */}
               <input
                 ref={profileInputRef}
@@ -589,6 +630,28 @@ export function PortfolioBuilder({
 
               <Separator />
 
+              <div className="flex flex-col gap-2">
+                <label className="flex cursor-pointer items-start gap-3">
+                  <input
+                    type="checkbox"
+                    checked={content.hero.secondaryBackground ?? false}
+                    onChange={(e) => patchHero({ secondaryBackground: e.target.checked })}
+                    disabled={!themeSupportsHeroBackground(settings.theme)}
+                    className="mt-0.5 size-4 shrink-0 rounded border border-input accent-[var(--color-primary)] disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                  <span className="flex flex-col gap-1">
+                    <span className="text-sm font-medium">{t(lang, "hero.secondaryBackground")}</span>
+                    <span className="text-xs leading-relaxed text-muted-foreground">
+                      {themeSupportsHeroBackground(settings.theme)
+                        ? t(lang, "hero.secondaryBackgroundHint")
+                        : t(lang, "hero.secondaryBackgroundUnsupported")}
+                    </span>
+                  </span>
+                </label>
+              </div>
+
+              <Separator />
+
               {/* Links */}
               <div className="flex flex-col gap-3">
                 <div className="flex items-center justify-between">
@@ -628,6 +691,7 @@ export function PortfolioBuilder({
                 showDe={showDe}
               />
             </CardContent>
+            )}
           </Card>
           </div>
 
@@ -658,8 +722,8 @@ export function PortfolioBuilder({
                   index={idx + 2}
                   isFirst={idx === 0}
                   isLast={idx === sortedSections.length - 1}
-                  isExpanded={expandedSectionId === section.id}
-                  onExpand={() => setExpandedSectionId(section.id)}
+                  isExpanded={activeBlockId === section.id}
+                  onExpand={() => setActiveBlockId(section.id)}
                   lang={lang}
                   showEn={showEn}
                   showDe={showDe}
@@ -785,14 +849,16 @@ export function PortfolioBuilder({
               content={content.hero}
               defaultLanguage={previewLang}
               multilanguage={settings.multilanguage}
+              theme={settings.theme}
             />
             <SectionRenderer
               sections={content.sections}
               defaultLanguage={previewLang}
               multilanguage={settings.multilanguage}
+              theme={settings.theme}
             />
           </main>
-          <Footer hero={content.hero} defaultLanguage={previewLang} />
+          <Footer hero={content.hero} defaultLanguage={previewLang} theme={settings.theme} />
         </div>
       </div>
     </div>

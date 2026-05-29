@@ -40,6 +40,8 @@ function TimelineEditor({
   onChange: (items: TimelineItem[]) => void;
 }) {
   const multilanguage = showEn && showDe;
+  const sortedItems = [...items].sort((a, b) => a.order - b.order);
+
   function addItem() {
     const maxOrder = items.reduce((m, it) => Math.max(m, it.order), -1);
     onChange([...items, { id: uid(), order: maxOrder + 1, date: "", title: "", description: "" }]);
@@ -50,17 +52,51 @@ function TimelineEditor({
   function remove(id: string) {
     onChange(items.filter((it) => it.id !== id));
   }
+  function moveItem(id: string, dir: "up" | "down") {
+    const idx = sortedItems.findIndex((it) => it.id === id);
+    const swapIdx = dir === "up" ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= sortedItems.length) return;
+    const current = sortedItems[idx];
+    const swap = sortedItems[swapIdx];
+    onChange(
+      items.map((it) => {
+        if (it.id === current.id) return { ...it, order: swap.order };
+        if (it.id === swap.id) return { ...it, order: current.order };
+        return it;
+      })
+    );
+  }
 
   return (
     <div className="flex flex-col gap-3">
-      {items.map((item, idx) => (
+      {sortedItems.map((item, idx) => (
         <div key={item.id} className="flex flex-col gap-2 rounded-lg border border-border p-3">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-muted-foreground">
               {t(lang, "sectionType.timeline")} {idx + 1}
             </span>
-            <button type="button" className="text-xs text-destructive hover:underline"
-              onClick={() => remove(item.id)}>{t(lang, "common.remove")}</button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                disabled={idx === 0}
+                onClick={() => moveItem(item.id, "up")}
+                className="rounded p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                title={t(lang, "section.moveUp")}
+              >
+                ↑
+              </button>
+              <button
+                type="button"
+                disabled={idx === sortedItems.length - 1}
+                onClick={() => moveItem(item.id, "down")}
+                className="rounded p-0.5 text-muted-foreground hover:text-foreground disabled:opacity-30"
+                title={t(lang, "section.moveDown")}
+              >
+                ↓
+              </button>
+              <button type="button" className="text-xs text-destructive hover:underline"
+                onClick={() => remove(item.id)}>{t(lang, "common.remove")}</button>
+            </div>
           </div>
           <Input placeholder={t(lang, "timelineSection.date")} value={item.date}
             onChange={(e) => update(item.id, { date: e.target.value })} />
@@ -200,7 +236,7 @@ function CommonFields({
               if (file) void (async () => {
                 setUploadingIcon(true);
                 try {
-                  const url = await uploadFile(file);
+                  const url = await uploadFile(file, { preset: "icon" });
                   onUpdate({ iconUrl: url });
                 } finally {
                   setUploadingIcon(false);

@@ -19,6 +19,8 @@ export interface HeroContent {
   navLabel?: string;
   navLabel_en?: string;
   navLabel_de?: string;
+  /** When true, applies a theme-specific hero background (e.g. diagonal band on modern-1). */
+  secondaryBackground?: boolean;
   links: HeroLink[];
 }
 
@@ -80,6 +82,9 @@ export interface InsightItem {
   name: string;
   name_en?: string;
   name_de?: string;
+  subtext?: string;
+  subtext_en?: string;
+  subtext_de?: string;
   shortDescription: string;
   shortDescription_en?: string;
   shortDescription_de?: string;
