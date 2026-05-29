@@ -39,19 +39,28 @@ describe("InsightsSection", () => {
     expect(screen.getByText("Open Source Tool")).toBeInTheDocument();
   });
 
-  it("opens modal on card click", async () => {
+  it("renders block preview inside card", () => {
     render(<InsightsSection section={baseSection} />);
-    const [firstCard] = screen.getAllByText("View details →");
-    await userEvent.click(firstCard);
-    // Dialog title should be the item name
+    expect(screen.getByText("Tech Stack")).toBeInTheDocument();
+    expect(screen.getByText("React + AWS + CDK.")).toBeInTheDocument();
+  });
+
+  it("opens modal when View details is clicked", async () => {
+    render(<InsightsSection section={baseSection} />);
+    await userEvent.click(screen.getAllByRole("button", { name: "View details →" })[0]);
     expect(screen.getByRole("heading", { name: "Portfolio Site" })).toBeInTheDocument();
+  });
+
+  it("uses German label when defaultLanguage is de", () => {
+    render(<InsightsSection section={baseSection} defaultLanguage="de" />);
+    expect(screen.getAllByRole("button", { name: "Details anzeigen →" })).toHaveLength(2);
   });
 
   it("renders detail blocks inside modal", async () => {
     render(<InsightsSection section={baseSection} />);
-    await userEvent.click(screen.getAllByText("View details →")[0]);
-    expect(screen.getByText("Tech Stack")).toBeInTheDocument();
-    expect(screen.getByText("React + AWS + CDK.")).toBeInTheDocument();
+    await userEvent.click(screen.getAllByRole("button", { name: "View details →" })[0]);
+    expect(screen.getAllByText("Tech Stack").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText("React + AWS + CDK.").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText("Outcome")).toBeInTheDocument();
     expect(screen.getByText("Live at mantasec.dev")).toBeInTheDocument();
   });

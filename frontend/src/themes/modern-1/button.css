@@ -1,0 +1,56 @@
+/* modern-1 default button — uses runtime --color-primary / --color-text tokens */
+
+[data-theme="modern-1"] {
+  --modern-1-button-bg: color-mix(in oklch, var(--color-primary) 72%, black);
+  --modern-1-button-border: color-mix(in oklch, var(--color-primary) 52%, black);
+  --modern-1-button-text: var(--primary-foreground);
+  --modern-1-button-shadow: color-mix(in oklch, var(--color-primary) 22%, transparent);
+}
+
+[data-theme="modern-1"] [data-slot="button"][data-variant="default"] {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-radius: 9999px;
+  border: 1px solid var(--modern-1-button-border);
+  background-color: var(--modern-1-button-bg);
+  color: var(--modern-1-button-text);
+  transition:
+    box-shadow 200ms ease,
+    border-color 200ms ease,
+    background-color 200ms ease;
+}
+
+[data-theme="modern-1"] [data-slot="button"][data-variant="default"]::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 50%;
+  z-index: 0;
+  width: 50%;
+  height: 1px;
+  transform: translateX(-50%);
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--color-primary),
+    transparent
+  );
+  box-shadow: 0 0 16px color-mix(in oklch, var(--color-primary) 45%, transparent);
+  pointer-events: none;
+}
+
+[data-theme="modern-1"] [data-slot="button"][data-variant="default"]:hover {
+  background-color: color-mix(in oklch, var(--modern-1-button-bg) 88%, white);
+  border-color: color-mix(in oklch, var(--color-primary) 62%, white);
+  box-shadow: 0 25px 50px -12px var(--modern-1-button-shadow);
+}
+
+[data-theme="modern-1"] [data-slot="button"][data-variant="default"]:active {
+  transform: translateY(1px);
+}
+
+[data-theme="modern-1"] [data-slot="button"][data-variant="default"] > * {
+  position: relative;
+  z-index: 1;
+}

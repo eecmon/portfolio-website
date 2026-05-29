@@ -84,6 +84,7 @@ export function applySettings(settings: Settings): void {
 
   // Mirror into shadcn tokens so components (Button, Switch…) stay on-brand
   root.style.setProperty("--primary", settings.primaryColor);
+  root.style.setProperty("--primary-foreground", "#ffffff");
   root.style.setProperty("--foreground", settings.textColor);
 
   // Font — override the compiled Tailwind base-layer font-family via inline style
