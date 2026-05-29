@@ -230,7 +230,7 @@ export function GitHubSection({ section, defaultLanguage = "en" }: SectionProps)
 
   return (
     <section id={anchorId} className="mx-auto max-w-5xl scroll-mt-20 px-6 py-14">
-      <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-[minmax(240px,34%)_max-content] md:gap-10 lg:grid-cols-[minmax(260px,36%)_max-content] lg:gap-14">
+      <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-[minmax(240px,34%)_minmax(0,1fr)] md:gap-10 lg:grid-cols-[minmax(260px,36%)_minmax(0,1fr)] lg:gap-14">
         {/* Left — icon + title row, subtext below */}
         <div className="flex min-w-0 flex-col gap-4">
           {(section.iconUrl || title) && (
@@ -260,19 +260,21 @@ export function GitHubSection({ section, defaultLanguage = "en" }: SectionProps)
           )}
         </div>
 
-        {/* Right — graph width; description aligns with graph */}
-        <div className="flex w-fit max-w-full min-w-0 flex-col gap-6">
-          <GitHubGraphPanel
-            lang={lang}
-            showGraph={showGraph}
-            contribData={contribData}
-            loadError={loadError}
-          />
-          {description && (
-            <p className="text-sm leading-relaxed text-muted-foreground md:text-[15px]">
-              {description}
-            </p>
-          )}
+        {/* Right — graph width; description wraps to match graph */}
+        <div className="min-w-0">
+          <figure className="m-0 w-fit max-w-full min-w-0">
+            <GitHubGraphPanel
+              lang={lang}
+              showGraph={showGraph}
+              contribData={contribData}
+              loadError={loadError}
+            />
+            {description && (
+              <figcaption className="mt-6 block min-w-0 text-sm leading-relaxed break-words text-muted-foreground md:text-[15px]">
+                {description}
+              </figcaption>
+            )}
+          </figure>
         </div>
       </div>
     </section>

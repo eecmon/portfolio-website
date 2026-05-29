@@ -47,11 +47,7 @@
 }
 
 [data-insight-cards="modern-1"] .insight-card__actions {
-  background: linear-gradient(
-    to top,
-    var(--modern-1-insight-card-secondary) 45%,
-    transparent 100%
-  );
+  background: none;
 }
 
 @media (prefers-reduced-motion: reduce) {

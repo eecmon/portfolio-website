@@ -68,35 +68,40 @@ function InsightCard({ item, lang }: { item: InsightItem; lang: string }) {
 
   return (
     <>
-      <article className={`${cardFrameClassName} flex flex-col border-2 border-border bg-background`} style={cardFrameStyle}>
-        <div className="insight-card__body flex min-h-0 flex-1 flex-col gap-1.5 overflow-hidden p-4 pb-12">
+      <article
+        className={`${cardFrameClassName} flex flex-col border-2 border-border bg-background`}
+        style={cardFrameStyle}
+      >
+        <div className="insight-card__body flex min-h-0 flex-1 flex-col gap-1.5 overflow-hidden p-4 pb-2">
           <p
-            className="line-clamp-2 text-base font-semibold leading-snug"
+            className="line-clamp-2 shrink-0 text-base font-semibold leading-snug"
             style={{ color: "var(--color-text)" }}
           >
             {name}
           </p>
           {subtext && (
             <p
-              className="line-clamp-1 text-sm font-medium leading-snug"
+              className="line-clamp-1 shrink-0 text-sm font-medium leading-snug"
               style={{ color: "var(--color-primary)" }}
             >
               {subtext}
             </p>
           )}
           {description && (
-            <p className="min-h-0 flex-1 text-sm leading-relaxed text-muted-foreground line-clamp-[6]">
-              {description}
-            </p>
+            <div className="min-h-0 flex-1 overflow-hidden">
+              <p className="line-clamp-[7] h-full text-sm leading-relaxed text-muted-foreground">
+                {description}
+              </p>
+            </div>
           )}
         </div>
 
-        <div className="insight-card__actions pointer-events-none absolute inset-x-0 bottom-0 flex justify-end px-4 pt-8 pb-3">
+        <div className="insight-card__actions flex shrink-0 justify-end px-4 pt-1 pb-3">
           <Button
             type="button"
             variant="default"
             size="sm"
-            className="pointer-events-auto border-transparent shadow-sm hover:opacity-90"
+            className="border-transparent shadow-sm hover:opacity-90"
             style={{
               backgroundColor: "var(--color-primary)",
               color: "var(--color-primary-foreground, #ffffff)",
