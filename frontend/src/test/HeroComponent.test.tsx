@@ -136,4 +136,28 @@ describe("HeroComponent", () => {
     );
     expect(container.querySelector("section")).toHaveAttribute("id", "hello-world");
   });
+
+  it("applies modern-1 hero background when enabled", () => {
+    const { container } = render(
+      <HeroComponent
+        content={{ ...baseContent, secondaryBackground: true }}
+        defaultLanguage="en"
+        multilanguage={false}
+        theme="modern-1"
+      />
+    );
+    expect(container.querySelector("section")).toHaveAttribute("data-hero-background", "modern-1");
+  });
+
+  it("does not apply hero background when disabled", () => {
+    const { container } = render(
+      <HeroComponent
+        content={{ ...baseContent, secondaryBackground: false }}
+        defaultLanguage="en"
+        multilanguage={false}
+        theme="modern-1"
+      />
+    );
+    expect(container.querySelector("section")).not.toHaveAttribute("data-hero-background");
+  });
 });

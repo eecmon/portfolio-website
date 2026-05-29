@@ -1,4 +1,5 @@
 @import "../themes/modern-1/button.css";
+@import "../themes/modern-1/hero-background.css";
 
 /* ─── Portfolio theme variables ─────────────────────────────────── */
 /* Defaults are overridden at runtime by applySettings()            */

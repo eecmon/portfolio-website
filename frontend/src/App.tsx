@@ -82,6 +82,7 @@ function PortfolioApp() {
             content={content.hero}
             defaultLanguage={displayLang}
             multilanguage={settings.multilanguage}
+            theme={settings.theme}
           />
           <SectionRenderer
             sections={content.sections ?? []}

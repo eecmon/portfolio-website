@@ -30,6 +30,7 @@ export const translations: Record<UILang, Record<string, string>> = {
 
     // Hero editor
     "hero.card": "Hero",
+    "hero.expand": "Expand hero section",
     "hero.firstName": "First Name",
     "hero.lastName": "Last Name",
     "hero.occupationEn": "Occupation (EN)",
@@ -38,6 +39,9 @@ export const translations: Record<UILang, Record<string, string>> = {
     "hero.summaryDe": "Summary (DE)",
     "hero.profileImage": "Profile Image",
     "hero.links": "Links",
+    "hero.secondaryBackground": "Secondary color background",
+    "hero.secondaryBackgroundHint": "Adds a theme-specific accent behind the hero (Modern 1: diagonal band using your secondary color).",
+    "hero.secondaryBackgroundUnsupported": "The current theme does not define a hero background style yet.",
     "hero.addLink": "Add Link",
     "hero.noLinks": "No links yet — click Add Link to add one.",
 
@@ -177,6 +181,7 @@ export const translations: Record<UILang, Record<string, string>> = {
 
     // Hero editor
     "hero.card": "Hero",
+    "hero.expand": "Hero-Bereich öffnen",
     "hero.firstName": "Vorname",
     "hero.lastName": "Nachname",
     "hero.occupationEn": "Beruf (EN)",
@@ -185,6 +190,9 @@ export const translations: Record<UILang, Record<string, string>> = {
     "hero.summaryDe": "Zusammenfassung (DE)",
     "hero.profileImage": "Profilbild",
     "hero.links": "Links",
+    "hero.secondaryBackground": "Hintergrund in Sekundärfarbe",
+    "hero.secondaryBackgroundHint": "Theme-spezifischer Akzent hinter dem Hero (Modern 1: diagonales Band in Sekundärfarbe).",
+    "hero.secondaryBackgroundUnsupported": "Das aktuelle Theme definiert noch keinen Hero-Hintergrund.",
     "hero.addLink": "Link hinzufügen",
     "hero.noLinks": "Noch keine Links — klicke auf 'Link hinzufügen'.",
 

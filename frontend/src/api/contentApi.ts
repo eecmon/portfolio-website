@@ -19,6 +19,8 @@ export interface HeroContent {
   navLabel?: string;
   navLabel_en?: string;
   navLabel_de?: string;
+  /** When true, applies a theme-specific hero background (e.g. diagonal band on modern-1). */
+  secondaryBackground?: boolean;
   links: HeroLink[];
 }
 

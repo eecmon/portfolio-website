@@ -231,23 +231,27 @@ export function GitHubSection({ section, defaultLanguage = "en" }: SectionProps)
   return (
     <section id={anchorId} className="mx-auto max-w-5xl scroll-mt-20 px-6 py-14">
       <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-5 md:gap-10 lg:gap-14">
-        {/* Left — title + subtext (1/5 on md+) */}
+        {/* Left — icon + title row, subtext below (1/5 on md+) */}
         <div className="flex min-w-0 flex-col gap-4 md:col-span-1">
-          {section.iconUrl && (
-            <img
-              src={section.iconUrl}
-              alt=""
-              aria-hidden="true"
-              className="size-7 shrink-0 object-contain"
-            />
-          )}
-          {title && (
-            <h2
-              className="text-2xl font-bold tracking-tight"
-              style={{ color: "var(--color-text)" }}
-            >
-              {title}
-            </h2>
+          {(section.iconUrl || title) && (
+            <div className="flex min-w-0 items-center gap-3">
+              {section.iconUrl && (
+                <img
+                  src={section.iconUrl}
+                  alt=""
+                  aria-hidden="true"
+                  className="size-7 shrink-0 object-contain"
+                />
+              )}
+              {title && (
+                <h2
+                  className="min-w-0 text-2xl font-bold tracking-tight"
+                  style={{ color: "var(--color-text)" }}
+                >
+                  {title}
+                </h2>
+              )}
+            </div>
           )}
           {subtext && (
             <p className="text-sm font-medium" style={{ color: "var(--color-primary)" }}>
@@ -256,19 +260,19 @@ export function GitHubSection({ section, defaultLanguage = "en" }: SectionProps)
           )}
         </div>
 
-        {/* Right — description + graph (4/5 on md+) */}
+        {/* Right — graph on top, description below (4/5 on md+) */}
         <div className="flex min-w-0 flex-col gap-6 md:col-span-4">
-          {description && (
-            <p className="text-sm leading-relaxed text-muted-foreground md:text-[15px]">
-              {description}
-            </p>
-          )}
           <GitHubGraphPanel
             lang={lang}
             showGraph={showGraph}
             contribData={contribData}
             loadError={loadError}
           />
+          {description && (
+            <p className="text-sm leading-relaxed text-muted-foreground md:text-[15px]">
+              {description}
+            </p>
+          )}
         </div>
       </div>
     </section>
