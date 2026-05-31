@@ -1,5 +1,10 @@
-# Docs (not ready to publish)
+# Private / draft docs
+safe/
+
+# Docs (not ready to publish) — root README.md and docs/ are tracked
 *.md
+!README.md
+!docs/*.md
 
 # Dependencies
 node_modules/
